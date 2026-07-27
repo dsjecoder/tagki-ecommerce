@@ -413,6 +413,59 @@ app.post('/api/settings/:key', async (req, res) => {
   }
 });
 
+// 5. Google OAuth Authentication API
+const { OAuth2Client } = require('google-auth-library');
+const googleClient = new OAuth2Client();
+
+app.post('/api/auth/google', async (req, res) => {
+  const { token } = req.body;
+  if (!token) {
+    return res.status(400).json({ success: false, message: "Token is required" });
+  }
+  try {
+    const ticket = await googleClient.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID || "429904534455-n7nkh8qe87b2piecusjfcig3hu8s0l2j.apps.googleusercontent.com"
+    });
+    const payload = ticket.getPayload();
+    const email = payload.email;
+    const name = payload.name || email.split('@')[0];
+    const picture = payload.picture || '';
+
+    const user = {
+      id: "g_" + payload.sub,
+      email: email,
+      fullName: name,
+      avatar: picture,
+      role: email.includes('admin') || email.includes('support') ? 'admin' : 'customer'
+    };
+
+    // Ensure users table exists dynamically
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(100) PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        full_name VARCHAR(255),
+        avatar TEXT,
+        role VARCHAR(50) DEFAULT 'customer',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Insert or update customer profile
+    await pool.query(`
+      INSERT INTO users (id, email, full_name, avatar, role)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (email) DO UPDATE SET full_name = $3, avatar = $4
+    `, [user.id, user.email, user.fullName, user.avatar, user.role]);
+
+    res.json({ success: true, user });
+  } catch (error) {
+    console.error("Google Auth verification failed:", error);
+    res.status(401).json({ success: false, message: error.message });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`==========================================`);
   console.log(`  Tagki PostgreSQL Server running on port ${PORT}`);
