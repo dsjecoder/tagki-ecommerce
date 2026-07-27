@@ -758,6 +758,7 @@ function openAddUserForm() {
   const name = prompt("Nhập Họ & Tên người dùng:") || email.split('@')[0];
   const roleSelect = prompt("Nhập vai trò người dùng (Nhập 'customer' hoặc 'admin'):", "customer");
   const role = (roleSelect && roleSelect.trim().toLowerCase() === 'admin') ? 'admin' : 'customer';
+  const password = prompt("Nhập mật khẩu cho tài khoản mới:", "123456") || "123456";
 
   const newUser = {
     id: 'u_' + Date.now(),
@@ -766,6 +767,7 @@ function openAddUserForm() {
     auth: 'Standard Email',
     role: role,
     status: 'active',
+    password: password,
     date: new Date().toLocaleDateString('vi-VN')
   };
 

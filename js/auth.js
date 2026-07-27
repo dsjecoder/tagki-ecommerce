@@ -223,15 +223,34 @@ function handleStandardLogin(event) {
     return;
   }
 
-  const user = {
-    id: "u_" + Date.now(),
-    email: email,
-    fullName: email.split('@')[0],
-    avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
-    role: "customer"
-  };
+  // Check if user already exists in the registered users database
+  const usersList = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  const existingUser = usersList.find(u => u.email.toLowerCase() === email.toLowerCase().trim());
 
-  window.pendingUser = user;
+  if (existingUser) {
+    if (existingUser.password && existingUser.password !== pass) {
+      alert(currentLang === 'en' ? "❌ Incorrect password!" : "❌ Mật khẩu đăng nhập không chính xác!");
+      return;
+    }
+    window.pendingUser = {
+      id: existingUser.id,
+      email: existingUser.email,
+      fullName: existingUser.name,
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
+      role: existingUser.role || "customer"
+    };
+  } else {
+    // Auto-register new user with entered password
+    window.pendingUser = {
+      id: "u_" + Date.now(),
+      email: email.toLowerCase().trim(),
+      fullName: email.split('@')[0],
+      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80",
+      role: "customer",
+      password: pass // Save password for future logins
+    };
+  }
+
   show2FAScreen();
 }
 

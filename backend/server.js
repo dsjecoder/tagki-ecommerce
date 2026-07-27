@@ -498,14 +498,18 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
-  const { id, name, email, role, status } = req.body;
+  const { id, name, email, role, status, password } = req.body;
   const userId = id || 'u_' + Date.now();
   try {
+    // Ensure password column exists dynamically
     await pool.query(`
-      INSERT INTO users (id, email, full_name, role, status)
-      VALUES ($1, $2, $3, $4, $5)
-      ON CONFLICT (email) DO UPDATE SET full_name = $3, role = $4, status = $5
-    `, [userId, email, name, role || 'customer', status || 'active']);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255) DEFAULT '';
+    `);
+    await pool.query(`
+      INSERT INTO users (id, email, full_name, role, status, password)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (email) DO UPDATE SET full_name = $3, role = $4, status = $5, password = COALESCE(NULLIF($6, ''), users.password)
+    `, [userId, email, name, role || 'customer', status || 'active', password || '']);
     res.json({ message: "User saved successfully!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
