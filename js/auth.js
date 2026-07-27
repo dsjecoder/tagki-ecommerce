@@ -6,6 +6,27 @@ function saveUserSession(user) {
   currentUser = user;
   localStorage.setItem('tagki_user', JSON.stringify(user));
   updateAuthUI();
+
+  // Save/Update in total registered users list (LocalStorage local copy)
+  let regUsers = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  if (!regUsers.some(u => u.email === user.email)) {
+    const newUser = {
+      id: user.id || 'u_' + Date.now(),
+      name: user.fullName || user.email.split('@')[0],
+      email: user.email,
+      auth: user.id && String(user.id).startsWith('g_') ? 'Google (Gmail)' : 'Standard Email',
+      role: user.role || 'customer',
+      status: 'active',
+      date: new Date().toLocaleDateString('vi-VN')
+    };
+    regUsers.push(newUser);
+    localStorage.setItem('tagki_registered_users', JSON.stringify(regUsers));
+
+    // Post to backend database
+    if (typeof dbPost === 'function') {
+      dbPost('/users', newUser);
+    }
+  }
 }
 
 function logoutUser() {
@@ -188,7 +209,8 @@ function handleStandardLogin(event) {
   }
 
   // Admin account check
-  if (email === 'admin@tagki.vn' && pass === 'admin123') {
+  const adminCreds = JSON.parse(localStorage.getItem('tagki_admin_creds')) || { email: 'admin@tagki.vn', pass: 'admin123' };
+  if (email === adminCreds.email && pass === adminCreds.pass) {
     const adminUser = {
       id: 1,
       email: email,

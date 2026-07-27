@@ -13,7 +13,7 @@
   <!-- Admin Login Screen (Hidden when authenticated) -->
   <div id="admin-login-screen" style="position: fixed; inset: 0; background: #0b132b; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px;">
     <div style="background: #1c2541; border: 1px solid #2b365a; border-radius: 16px; width: 100%; max-width: 400px; padding: 32px; box-shadow: 0 20px 40px rgba(0,0,0,0.5); text-align: center;">
-      <div style="width: 54px; height: 54px; background: #3a86ff; border-radius: 14px; color: white; font-weight: 800; font-size: 1.6rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">E</div>
+      <div style="width: 54px; height: 54px; background: #3a86ff; border-radius: 14px; color: white; font-weight: 800; font-size: 1.6rem; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 12px;">T</div>
       <h2 style="font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 6px;">Đăng Nhập Quản Trị Admin</h2>
       <p style="font-size: 0.82rem; color: #8d99ae; margin-bottom: 24px;">Hệ thống bảo mật Tagki Management Console</p>
 
@@ -42,7 +42,7 @@
   <!-- Sidebar -->
   <aside class="admin-sidebar">
     <div class="admin-logo">
-      <div style="width: 36px; height: 36px; background: var(--admin-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800;">E</div>
+      <div style="width: 36px; height: 36px; background: var(--admin-primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 800;">T</div>
       <span>Tagki Admin</span>
     </div>
 
@@ -261,7 +261,10 @@
     <div id="tab-users" style="display: none;">
       <div class="admin-table-box">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-          <h3>Danh Sách Người Dùng & Phân Quyền</h3>
+          <div style="display: flex; align-items: center; gap: 14px;">
+            <h3>Danh Sách Người Dùng & Phân Quyền</h3>
+            <button onclick="openAddUserForm()" class="admin-btn" style="background: #10b981; padding: 6px 14px; font-weight: 700; font-size: 0.82rem;">➕ Thêm Người Dùng</button>
+          </div>
           <span style="font-size: 0.8rem; color: var(--admin-muted);" id="users-total-count">Tổng 3 tài khoản</span>
         </div>
         <table class="admin-table">
@@ -372,6 +375,28 @@
               </div>
             </div>
             <button type="submit" class="admin-btn admin-btn-success" style="padding: 10px 24px;">Lưu Cấu Hình Giao Diện</button>
+          </form>
+        </div>
+
+        <!-- Change Admin Password Block -->
+        <div class="admin-table-box" style="grid-column: 1 / -1; margin-top: 20px;">
+          <h3 style="color: #ef4444; margin-bottom: 16px;">🔒 Thay Đổi Mật Khẩu Admin</h3>
+          <form onsubmit="handleChangeAdminPassword(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-bottom: 16px;">
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Mật khẩu hiện tại</label>
+                <input type="password" id="admin-old-pass" class="tool-input" placeholder="••••••••" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Mật khẩu mới</label>
+                <input type="password" id="admin-new-pass" class="tool-input" placeholder="Tối thiểu 6 ký tự" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Xác nhận mật khẩu mới</label>
+                <input type="password" id="admin-confirm-pass" class="tool-input" placeholder="Nhập lại mật khẩu mới" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              </div>
+            </div>
+            <button type="submit" class="admin-btn" style="background: #ef4444; color: white; padding: 10px 24px;">Lưu Mật Khẩu Mới</button>
           </form>
         </div>
 

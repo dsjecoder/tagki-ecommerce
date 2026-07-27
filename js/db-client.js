@@ -88,6 +88,18 @@ async function syncDatabaseWithBackend() {
   if (banners && banners.length > 0) {
     localStorage.setItem('tagki_banners', JSON.stringify(banners));
   }
+
+  // 9. Fetch Users
+  const users = await dbFetch('/users');
+  if (users && users.length > 0) {
+    localStorage.setItem('tagki_registered_users', JSON.stringify(users));
+  }
+
+  // 10. Fetch Admin Credentials Settings
+  const adminCreds = await dbFetch('/settings/admin_creds');
+  if (adminCreds) {
+    localStorage.setItem('tagki_admin_creds', JSON.stringify(adminCreds));
+  }
 }
 
 // Trigger initial sync on load if on index page

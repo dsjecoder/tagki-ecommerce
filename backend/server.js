@@ -464,7 +464,73 @@ app.post('/api/auth/google', async (req, res) => {
     console.error("Google Auth verification failed:", error);
     res.status(401).json({ success: false, message: error.message });
   }
+// 5.1. Registered Users Management APIs
+app.get('/api/users', async (req, res) => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id VARCHAR(100) PRIMARY KEY,
+        email VARCHAR(255) UNIQUE NOT NULL,
+        full_name VARCHAR(255),
+        avatar TEXT,
+        role VARCHAR(50) DEFAULT 'customer',
+        status VARCHAR(50) DEFAULT 'active',
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    // Ensure status column exists in case database table was created earlier
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+    `);
+    const { rows } = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
+    res.json(rows.map(u => ({
+      id: u.id,
+      name: u.full_name || u.email.split('@')[0],
+      email: u.email,
+      auth: u.id && u.id.startsWith('g_') ? 'Google (Gmail)' : 'Standard Email',
+      role: u.role || 'customer',
+      status: u.status || 'active',
+      date: new Date(u.created_at).toLocaleDateString('vi-VN')
+    })));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+app.post('/api/users', async (req, res) => {
+  const { id, name, email, role, status } = req.body;
+  const userId = id || 'u_' + Date.now();
+  try {
+    await pool.query(`
+      INSERT INTO users (id, email, full_name, role, status)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (email) DO UPDATE SET full_name = $3, role = $4, status = $5
+    `, [userId, email, name, role || 'customer', status || 'active']);
+    res.json({ message: "User saved successfully!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.put('/api/users/:id/status', async (req, res) => {
+  const { status } = req.body;
+  try {
+    await pool.query('UPDATE users SET status = $1 WHERE id = $2', [status, req.params.id]);
+    res.json({ message: "User status updated successfully!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  try {
+    await pool.query('DELETE FROM users WHERE id = $1', [req.params.id]);
+    res.json({ message: "User deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 app.listen(PORT, () => {
   console.log(`==========================================`);

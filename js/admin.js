@@ -53,7 +53,9 @@ function handleAdminLogin(event) {
   const email = document.getElementById('admin-login-email')?.value;
   const pass = document.getElementById('admin-login-pass')?.value;
 
-  if (email === 'admin@tagki.vn' && pass === 'admin123') {
+  const adminCreds = JSON.parse(localStorage.getItem('tagki_admin_creds')) || { email: 'admin@tagki.vn', pass: 'admin123' };
+
+  if (email === adminCreds.email && pass === adminCreds.pass) {
     const adminSession = {
       email: email,
       fullName: "Tagki Admin",
@@ -63,13 +65,55 @@ function handleAdminLogin(event) {
     localStorage.setItem('tagki_admin_session', JSON.stringify(adminSession));
     checkAdminAuth();
   } else {
-    alert("❌ Sai Email hoặc Mật khẩu Quản trị! (Mặc định: admin@tagki.vn / admin123)");
+    alert(`❌ Sai Email hoặc Mật khẩu Quản trị! (Mặc định: ${adminCreds.email} / ${adminCreds.pass})`);
   }
 }
 
 function adminLogout() {
   localStorage.removeItem('tagki_admin_session');
   checkAdminAuth();
+}
+
+function handleChangeAdminPassword(event) {
+  event.preventDefault();
+  const oldPass = document.getElementById('admin-old-pass')?.value;
+  const newPass = document.getElementById('admin-new-pass')?.value;
+  const confirmPass = document.getElementById('admin-confirm-pass')?.value;
+
+  if (!oldPass || !newPass || !confirmPass) {
+    alert("❌ Vui lòng nhập đầy đủ các trường mật khẩu!");
+    return;
+  }
+
+  const adminCreds = JSON.parse(localStorage.getItem('tagki_admin_creds')) || { email: 'admin@tagki.vn', pass: 'admin123' };
+
+  if (oldPass !== adminCreds.pass) {
+    alert("❌ Mật khẩu hiện tại không đúng!");
+    return;
+  }
+
+  if (newPass.length < 6) {
+    alert("❌ Mật khẩu mới phải từ 6 ký tự trở lên!");
+    return;
+  }
+
+  if (newPass !== confirmPass) {
+    alert("❌ Xác nhận mật khẩu mới không trùng khớp!");
+    return;
+  }
+
+  adminCreds.pass = newPass;
+  localStorage.setItem('tagki_admin_creds', JSON.stringify(adminCreds));
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings/admin_creds', adminCreds);
+  }
+
+  document.getElementById('admin-old-pass').value = '';
+  document.getElementById('admin-new-pass').value = '';
+  document.getElementById('admin-confirm-pass').value = '';
+
+  alert("🎉 Thay đổi mật khẩu Admin thành công! Mật khẩu mới của bạn là: " + newPass);
 }
 
 function switchAdminTab(tabName) {
@@ -612,9 +656,13 @@ function renderAdminUsers() {
   const totalEl = document.getElementById('users-total-count');
   if (!tbody) return;
 
-  if (totalEl) totalEl.textContent = `Tổng ${ADMIN_USERS.length} tài khoản`;
+  const users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [
+    { id: "1", name: "Tagki Admin", email: "admin@tagki.vn", auth: "Standard Email", role: "admin", status: "active", date: "01/01/2026" }
+  ];
 
-  tbody.innerHTML = ADMIN_USERS.map(u => `
+  if (totalEl) totalEl.textContent = `Tổng ${users.length} tài khoản`;
+
+  tbody.innerHTML = users.map(u => `
     <tr>
       <td>#${u.id}</td>
       <td style="font-weight: 700;">${u.name}</td>
@@ -628,32 +676,44 @@ function renderAdminUsers() {
       </td>
       <td>${u.date}</td>
       <td>
-        <button class="admin-btn" style="background: #3b82f6; margin-right: 4px;" onclick="editUser(${u.id})">Sửa</button>
-        <button class="admin-btn" style="background: ${u.status === 'active' ? '#f59e0b' : '#10b981'}; margin-right: 4px;" onclick="toggleUserStatus(${u.id})">
+        <button class="admin-btn" style="background: #3b82f6; margin-right: 4px;" onclick="editUser('${u.id}')">Sửa</button>
+        <button class="admin-btn" style="background: ${u.status === 'active' ? '#f59e0b' : '#10b981'}; margin-right: 4px;" onclick="toggleUserStatus('${u.id}')">
           ${u.status === 'active' ? 'Khóa' : 'Kích hoạt'}
         </button>
-        <button class="admin-btn admin-btn-danger" onclick="deleteUser(${u.id})">Xóa</button>
+        <button class="admin-btn admin-btn-danger" onclick="deleteUser('${u.id}')">Xóa</button>
       </td>
     </tr>
   `).join('');
 }
 
 function toggleUserStatus(userId) {
-  const user = ADMIN_USERS.find(u => u.id === userId);
+  let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  const user = users.find(u => String(u.id) === String(userId));
   if (user) {
     user.status = user.status === 'active' ? 'inactive' : 'active';
+    localStorage.setItem('tagki_registered_users', JSON.stringify(users));
     renderAdminUsers();
+
+    if (typeof dbPost === 'function') {
+      dbPost(`/users/${userId}/status`, { status: user.status });
+    }
     alert(`Đã đổi trạng thái tài khoản ${user.email} thành ${user.status.toUpperCase()}!`);
   }
 }
 
 function editUser(userId) {
-  const user = ADMIN_USERS.find(u => u.id === userId);
+  let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  const user = users.find(u => String(u.id) === String(userId));
   if (user) {
     const newName = prompt("Nhập Tên mới cho người dùng:", user.name);
     if (newName && newName.trim() !== '') {
       user.name = newName.trim();
+      localStorage.setItem('tagki_registered_users', JSON.stringify(users));
       renderAdminUsers();
+
+      if (typeof dbPost === 'function') {
+        dbPost('/users', user);
+      }
       alert("Đã cập nhật thông tin người dùng thành công!");
     }
   }
@@ -661,9 +721,54 @@ function editUser(userId) {
 
 function deleteUser(userId) {
   if (confirm("Bạn có chắc chắn muốn xóa người dùng này?")) {
-    ADMIN_USERS = ADMIN_USERS.filter(u => u.id !== userId);
+    let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+    users = users.filter(u => String(u.id) !== String(userId));
+    localStorage.setItem('tagki_registered_users', JSON.stringify(users));
     renderAdminUsers();
+
+    if (typeof dbDelete === 'function') {
+      dbDelete(`/users/${userId}`);
+    }
   }
+}
+
+function openAddUserForm() {
+  const email = prompt("Nhập Email người dùng mới:");
+  if (!email || !email.includes('@')) {
+    alert("❌ Email không hợp lệ!");
+    return;
+  }
+
+  let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
+    alert("❌ Email này đã tồn tại trên hệ thống!");
+    return;
+  }
+
+  const name = prompt("Nhập Họ & Tên người dùng:") || email.split('@')[0];
+  const roleSelect = prompt("Nhập vai trò người dùng (Nhập 'customer' hoặc 'admin'):", "customer");
+  const role = (roleSelect && roleSelect.trim().toLowerCase() === 'admin') ? 'admin' : 'customer';
+
+  const newUser = {
+    id: 'u_' + Date.now(),
+    name: name,
+    email: email.toLowerCase().trim(),
+    auth: 'Standard Email',
+    role: role,
+    status: 'active',
+    date: new Date().toLocaleDateString('vi-VN')
+  };
+
+  users.unshift(newUser);
+  localStorage.setItem('tagki_registered_users', JSON.stringify(users));
+  renderAdminUsers();
+
+  if (typeof dbPost === 'function') {
+    dbPost('/users', newUser);
+  }
+
+  alert("🎉 Thêm người dùng mới thành công!");
+}
 }
 
 function approveOrder(code) {
