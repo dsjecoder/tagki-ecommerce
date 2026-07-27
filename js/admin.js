@@ -779,7 +779,6 @@ function openAddUserForm() {
 
   alert("🎉 Thêm người dùng mới thành công!");
 }
-}
 
 function approveOrder(code) {
   const orders = JSON.parse(localStorage.getItem('tagki_orders')) || DEFAULT_ORDERS;
