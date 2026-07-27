@@ -38,7 +38,33 @@ function updateAuthUI() {
 
 // Redirect Google login to account chooser modal
 function loginWithGoogle() {
-  showGoogleAccountChooser();
+  // showGoogleAccountChooser(); gọi hàm chạy giả lập
+  //429904534455-n7nkh8qe87b2piecusjfcig3hu8s0l2j.apps.googleusercontent.com
+  google.accounts.id.initialize({
+    client_id: "429904534455-n7nkh8qe87b2piecusjfcig3hu8s0l2j.apps.googleusercontent.com", // Dán Client ID của bạn vào đây
+    callback: handleGoogleCredentialResponse
+  });
+  google.accounts.id.prompt(); // Hiện hộp thoại Google One Tap ở góc màn hình
+}
+
+function handleGoogleCredentialResponse(response) {
+  // Gửi JWT token nhận từ Google về Backend để xác thực bảo mật
+  fetch(BACKEND_API_URL + '/auth/google', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: response.credential })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      saveUserSession(data.user);
+      closeAuthModal();
+      showToast(currentLang === 'en' ? "Logged in successfully!" : "Đăng nhập bằng tài khoản Google thành công!");
+    } else {
+      alert("Xác thực đăng nhập Google thất bại: " + data.message);
+    }
+  })
+  .catch(err => console.error("Lỗi kết nối OAuth:", err));
 }
 
 // Render Google Account Chooser interface

@@ -3,6 +3,11 @@ $listener = New-Object System.Net.HttpListener
 $listener.Prefixes.Add("http://localhost:8080/")
 $listener.Prefixes.Add("http://localhost:8000/")
 
+# for google authentication
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client('429904534455-n7nkh8qe87b2piecusjfcig3hu8s0l2j.apps.googleusercontent.com'); // Dán Client ID vào đây
+
+
 try {
     $listener.Start()
     Write-Host "==========================================" -ForegroundColor Green
@@ -68,3 +73,32 @@ try {
         $listener.Stop()
     }
 }
+
+app.post('/api/auth/google', async (req, res) => {
+  const { token } = req.body;
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: '429904534455-n7nkh8qe87b2piecusjfcig3hu8s0l2j.apps.googleusercontent.com'
+    });
+    const payload = ticket.getPayload();
+    const email = payload['email'];
+    const name = payload['name'];
+    const picture = payload['picture'];
+
+    // Kiểm tra xem user đã tồn tại trong database Supabase chưa
+    let user = await db.findUserByEmail(email); // Hàm kiểm tra DB
+    if (!user) {
+      // Nếu chưa có, tiến hành đăng ký tài khoản tự động
+      user = await db.createUser({
+        email: email,
+        fullName: name,
+        avatar: picture,
+        role: 'customer'
+      });
+    }
+    res.json({ success: true, user });
+  } catch (error) {
+    res.status(401).json({ success: false, message: "Token verify failed: " + error.message });
+  }
+});
