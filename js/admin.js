@@ -33,16 +33,26 @@ function checkAdminAuth() {
     if (loginScreen) loginScreen.style.display = 'none';
     const displayEl = document.getElementById('admin-user-display');
     if (displayEl) displayEl.textContent = `Admin: ${currentAdmin.email}`;
-    renderAdminOrders();
-    renderAdminProducts();
-    renderAdminCategories();
-    renderAdminFlashSale();
-    renderAdminUsers();
-    renderAdminPromotions();
-    renderAdminBlogs();
-    renderAdminBanners();
-    populateFlashSaleDropdown();
-    populateBrandingInputs();
+
+    // Self-healing rendering calls
+    const safeCall = (fn) => {
+      try {
+        fn();
+      } catch (err) {
+        console.error("Error rendering dashboard module:", err);
+      }
+    };
+
+    safeCall(renderAdminOrders);
+    safeCall(renderAdminProducts);
+    safeCall(renderAdminCategories);
+    safeCall(renderAdminFlashSale);
+    safeCall(renderAdminUsers);
+    safeCall(renderAdminPromotions);
+    safeCall(renderAdminBlogs);
+    safeCall(renderAdminBanners);
+    safeCall(populateFlashSaleDropdown);
+    safeCall(populateBrandingInputs);
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';
   }
@@ -668,7 +678,7 @@ function renderAdminUsers() {
       <td style="font-weight: 700;">${u.name}</td>
       <td>${u.email}</td>
       <td><span style="background: rgba(16,185,129,0.15); color: #10b981; padding: 2px 8px; border-radius: 6px; font-weight: 700; font-size: 0.78rem;">${u.auth}</span></td>
-      <td><span style="background: ${u.role === 'admin' ? '#ef4444' : '#3b82f6'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${u.role.toUpperCase()}</span></td>
+      <td><span style="background: ${u.role === 'admin' ? '#ef4444' : '#3b82f6'}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700;">${(u.role || 'customer').toUpperCase()}</span></td>
       <td>
         <span style="background: ${u.status === 'active' ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}; color: ${u.status === 'active' ? '#10b981' : '#ef4444'}; padding: 4px 10px; border-radius: 9999px; font-size: 0.76rem; font-weight: 800;">
           ${u.status === 'active' ? '🟢 Hoạt động' : '🔴 Bị Khóa'}
