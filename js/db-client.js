@@ -1,6 +1,7 @@
 // Tagki Database API client wrapper (talks to PostgreSQL backend or falls back to LocalStorage)
 
-const BACKEND_API_URL = 'http://localhost:3000/api';
+//const BACKEND_API_URL = 'http://localhost:3000/api';
+const BACKEND_API_URL = 'https://tagki-backend.onrender.com/api';
 
 async function dbFetch(endpoint) {
   try {
