@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tagki | Tài Khoản Số Cao Cấp & Giải Pháp Công Nghệ</title>
+  <meta name="description" content="Mua tài khoản số cao cấp và giải pháp phần mềm chuyên nghiệp tại Tagki. Giao hàng ngay lập tức, bảo mật tối đa và hỗ trợ 24/7.">
+  <link rel="icon" href="https://tagki.vn/favicon.ico">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Custom Extra Styles for Flash Sale -->
+  <style>
+    .countdown-unit {
+      background: #ef4444;
+      color: white;
+      font-weight: 800;
+      font-size: 0.95rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      min-width: 32px;
+      text-align: center;
+      display: inline-block;
+      box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.15); }
+    }
+  </style>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Floating Quick Contact Buttons -->
+  <div class="floating-contact-bar">
+    <a href="https://zalo.me/0839888823" target="_blank" class="float-btn float-zalo" title="Chat Zalo +84 908687510">
+      💬
+    </a>
+    <a href="https://t.me/tagki6868" target="_blank" class="float-btn float-telegram" title="Telegram Support">
+      ✈️
+    </a>
+    <a href="https://www.facebook.com/tagki686868" target="_blank" class="float-btn float-fb" title="Facebook Messenger">
+      🌐
+    </a>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <a href="guide.html" class="top-link" data-i18n="top_guide">Hướng dẫn mua hàng</a>
+      <a href="#promotions" class="top-link" data-i18n="top_promotions">Ưu đãi khách hàng</a>
+      <a href="blog.html" class="top-link" style="font-weight: 600; color: #a5f3fc;">📰 Blog kinh nghiệm</a>
+      <a href="contact.html" class="top-link" style="font-weight: 600; color: #fef08a;">💬 Hỗ trợ liên hệ</a>
+      <a href="javascript:void(0)" onclick="open2FAModal()" class="top-link" style="color: #fde047;" data-i18n="top_2fa">Công cụ 2FA</a>
+      <span class="top-link" data-i18n="top_hotline">Hotline: +84 908687510</span>
+      
+      <!-- Language Switcher Flags -->
+      <div style="display: flex; gap: 10px; align-items: center; margin-left: 12px;">
+        <button class="lang-btn" data-lang="vi" onclick="setLanguage('vi')" style="background:none; border:none; color:white; cursor:pointer; font-size:0.82rem; font-weight:700; display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; transition: transform 0.2s;" title="Tiếng Việt">🍀 VI</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')" style="background:none; border:none; color:white; cursor:pointer; font-size:0.82rem; font-weight:700; display:flex; align-items:center; gap:4px; padding: 2px 6px; border-radius: 4px; transition: transform 0.2s;" title="English">🌿 EN</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <!-- Main Navigation Header -->
+    <div class="main-header">
+      <div class="header-container">
+        <!-- Logo -->
+        <a href="#" class="logo-area">
+          <div class="logo-icon">T</div>
+          <span class="logo-text">TAGKI</span>
+        </a>
+
+        <!-- Search Bar -->
+        <div class="search-box">
+          <input type="text" id="search-input" class="search-input" data-i18n="search_placeholder" placeholder="Tìm kiếm tài khoản ChatGPT, Cursor, Canva, Key Office...">
+          <button class="search-btn" title="Search">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </button>
+          <div id="search-results" class="search-results"></div>
+        </div>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <!-- Cart Button -->
+          <button class="action-btn" onclick="openCartDrawer()" title="Cart">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"></circle><circle cx="19" cy="21" r="1"></circle><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path></svg>
+            <span data-i18n="cart_btn">Giỏ hàng</span>
+            <span class="badge-count cart-badge" style="display: none;">0</span>
+          </button>
+
+          <!-- User Profile Button (When Logged In) -->
+          <a href="profile.html" class="action-btn user-profile-header" style="display: none; background: rgba(255,255,255,0.25); border: 1px solid rgba(255,255,255,0.4);" title="Trang cá nhân">
+            <!-- User avatar rendered via auth.js -->
+          </a>
+
+          <!-- Login Button -->
+          <button class="login-btn login-btn-header" onclick="openAuthModal('login')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            <span data-i18n="login_btn">Đăng nhập</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Secondary Category Sub-Nav -->
+    <div class="sub-nav">
+      <div class="sub-nav-container">
+        <ul class="nav-links">
+          <li class="nav-item active"><a href="#" onclick="filterCategory('all')" data-i18n="nav_home">Trang chủ</a></li>
+          <li class="nav-item"><a href="#products-section" onclick="filterCategory('ai-tools')" data-i18n="nav_ai">Công cụ AI</a></li>
+          <li class="nav-item"><a href="#products-section" onclick="filterCategory('developer')" data-i18n="nav_dev">Lập trình & Dev</a></li>
+          <li class="nav-item"><a href="#products-section" onclick="filterCategory('design-tools')" data-i18n="nav_design">Thiết kế & Đồ họa</a></li>
+          <li class="nav-item"><a href="#products-section" onclick="filterCategory('business')" data-i18n="nav_office">Văn phòng</a></li>
+          <li class="nav-item"><a href="#products-section" onclick="filterCategory('services')" data-i18n="nav_services">Dịch vụ Kỹ thuật</a></li>
+          <li class="nav-item"><a href="blog.html" style="color: #f59e0b; font-weight: 700;">Blog</a></li>
+          <li class="nav-item"><a href="contact.html" style="color: #eab308; font-weight: 700;">Liên hệ</a></li>
+          <li class="nav-item"><a href="profile.html" style="color: #0284c7; font-weight: 700;" data-i18n="nav_profile">Lịch sử mua hàng</a></li>
+          <li class="nav-item"><a href="admin.html" style="color: #ef4444; font-weight: 700;" data-i18n="nav_admin">Quản trị Admin</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-grid">
+      <!-- Carousel Slider -->
+      <div class="carousel-box" id="hero-carousel"></div>
+
+      <!-- Side Cards -->
+      <div class="hero-side">
+        <div class="side-card" onclick="filterCategory('security')">
+          <img src="https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80" alt="VPN Security">
+          <div class="side-card-overlay">
+            <span>Kaspersky & NordVPN Bản Quyền 🛡️</span>
+          </div>
+        </div>
+        <div class="side-card" onclick="filterCategory('ai-tools')">
+          <img src="https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=600&q=80" alt="AI World">
+          <div class="side-card-overlay">
+            <span>Thế Giới Công Cụ AI Đỉnh Cao 🤖</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Flash Sale ⚡ / Hot Deal Section -->
+  <section class="products-section" id="flash-sale-section" style="display: none; margin: 30px auto;">
+    <div style="background: linear-gradient(135deg, #fee2e2, #fef2f2); border: 2px solid #fecaca; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <span style="font-size: 1.6rem; animation: pulse 1s infinite; display: inline-block;">⚡</span>
+          <h2 style="font-size: 1.4rem; font-weight: 800; color: #ef4444; margin: 0; text-transform: uppercase; letter-spacing: -0.5px;">Flash Sale Giờ Vàng</h2>
+          
+          <!-- Countdown Timer -->
+          <div style="display: flex; gap: 6px; align-items: center; margin-left: 12px; font-weight: 800; color: #ef4444;" id="fs-countdown-box">
+            <span class="countdown-unit" id="fs-hours">00</span> :
+            <span class="countdown-unit" id="fs-minutes">00</span> :
+            <span class="countdown-unit" id="fs-seconds">00</span>
+          </div>
+        </div>
+        <span style="font-size: 0.82rem; font-weight: 700; color: #b91c1c; background: #fee2e2; padding: 6px 12px; border-radius: 6px; text-transform: uppercase;">Số lượng giới hạn 🔥</span>
+      </div>
+      
+      <!-- Flash Sale Products Grid -->
+      <div class="product-grid" id="flash-sale-grid"></div>
+    </div>
+  </section>
+
+  <!-- Category Section hidden as requested (we have Featured Products instead) -->
+  <section class="category-section" style="display: none;">
+    <h2 class="section-title" data-i18n="category_title">Danh mục nổi bật</h2>
+    <div class="category-grid" id="category-grid"></div>
+  </section>
+
+  <!-- Featured Products Section -->
+  <section class="products-section" id="featured-products-section" style="max-width: 1320px; margin: 30px auto; padding: 24px; background: rgba(29,77,15,0.03); border-radius: var(--radius-lg); border: 2px dashed rgba(29,77,15,0.15);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+      <span style="font-size: 1.5rem;">⭐</span>
+      <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin: 0; text-transform: uppercase;">Sản phẩm nổi bật</h2>
+    </div>
+    <div class="product-grid" id="featured-products-grid"></div>
+  </section>
+
+  <!-- Products Section -->
+  <section class="products-section" id="products-section">
+    <h2 class="section-title" data-i18n="product_title">Sản phẩm & Dịch vụ Premium</h2>
+    <div class="product-grid" id="product-grid"></div>
+  </section>
+
+  <!-- Latest Blog Posts Section -->
+  <section class="products-section" id="latest-blogs-section" style="max-width: 1320px; margin: 40px auto; padding: 24px; background: rgba(29,77,15,0.03); border-radius: var(--radius-lg); border: 2px dashed rgba(29,77,15,0.15);">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; border-bottom: 1px solid rgba(29,77,15,0.15); padding-bottom: 12px;">
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <span style="font-size: 1.5rem;">📝</span>
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--primary); margin: 0; text-transform: uppercase;">
+          <span class="lang-vi">Bài viết chia sẻ kinh nghiệm</span>
+          <span class="lang-en">Tech Guides & Experience</span>
+        </h2>
+      </div>
+      <a href="blog.html" style="color: var(--primary); font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 4px;">
+        <span class="lang-vi">Xem tất cả bài viết ➜</span>
+        <span class="lang-en">View all articles ➜</span>
+      </a>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;" id="latest-blogs-grid">
+      <!-- Dynamic blog posts rendered here -->
+    </div>
+  </section>
+
+  <!-- Features Trust Banner -->
+  <section style="max-width: 1320px; margin: 40px auto; padding: 0 16px;">
+    <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; box-shadow: var(--shadow-sm);">
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 48px; height: 48px; background: rgba(37,121,242,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </div>
+        <div>
+          <div style="font-weight: 800; font-size: 0.95rem;" data-i18n="auto_delivery">Giao hàng tự động</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Nhận tài khoản trong 1-3 phút</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 48px; height: 48px; background: rgba(16,185,129,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #10b981;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <div>
+          <div style="font-weight: 800; font-size: 0.95rem;" data-i18n="lifetime_warranty">Bảo hành trọn đời</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Cam kết 1 đổi 1 suốt thời gian dùng</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 48px; height: 48px; background: rgba(139,92,246,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #8b5cf6;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
+        </div>
+        <div>
+          <div style="font-weight: 800; font-size: 0.95rem;">Hỗ trợ kỹ thuật 24/7</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Tư vấn qua Zalo & UltraViewer</div>
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 14px;">
+        <div style="width: 48px; height: 48px; background: rgba(249,115,22,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #f97316;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        </div>
+        <div>
+          <div style="font-weight: 800; font-size: 0.95rem;">Thanh toán đa dạng</div>
+          <div style="font-size: 0.8rem; color: var(--text-muted);">Quét mã QR Ngân hàng & Crypto</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Footer with Social Links -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <div class="logo-icon" style="background: var(--primary); color: white;">T</div>
+          <span style="font-size: 1.3rem; font-weight: 800; color: white;">Tagki</span>
+        </div>
+        <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px;">
+          <span class="lang-vi">Sàn thương mại điện tử chuyên cung cấp tài khoản số cao cấp, key bản quyền uy tín hàng đầu Việt Nam.</span>
+          <span class="lang-en">E-commerce marketplace providing premium digital subscriptions & official license keys in Vietnam.</span>
+        </p>
+        <div style="font-size: 0.85rem;">
+          <p style="margin-bottom: 6px;">📍 <span class="lang-vi">Trụ sở: Sài Gòn, Việt Nam</span><span class="lang-en">Headquarters: Saigon, Vietnam</span></p>
+          <p style="margin-bottom: 6px;">📞 Zalo/Phone: <b>+84 908687510</b></p>
+          <p>✉️ Email: support@tagki.com</p>
+        </div>
+
+        <!-- Social Media Icons -->
+        <div class="social-links">
+          <a href="https://www.facebook.com/tagki686868" target="_blank" class="social-icon-btn" title="Facebook Page">FB</a>
+          <a href="https://zalo.me/0839888823" target="_blank" class="social-icon-btn" title="Zalo Official">ZL</a>
+          <a href="https://t.me/tagki6868" target="_blank" class="social-icon-btn" title="Telegram Channel">TG</a>
+          <a href="https://wa.me/84839888823" target="_blank" class="social-icon-btn" title="WhatsApp Business">WA</a>
+          <a href="https://x.com/tagki6868" target="_blank" class="social-icon-btn" title="Twitter / X">𝕏</a>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Sản Phẩm Nổi Bật</h4>
+        <h4 class="lang-en">Featured Products</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="#" onclick="filterCategory('ai-tools')">ChatGPT Plus Chính Chủ</a></li>
+          <li><a href="#" onclick="filterCategory('ai-tools')">Claude AI Pro</a></li>
+          <li><a href="#" onclick="filterCategory('developer')">Cursor Pro & Antigravity</a></li>
+          <li><a href="#" onclick="filterCategory('design-tools')">Canva Pro Vĩnh Viễn</a></li>
+          <li><a href="#" onclick="filterCategory('business')">Microsoft 365 (1TB OneDrive)</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Chính Sách & Hỗ Trợ</h4>
+        <h4 class="lang-en">Policies & Support</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="guide.html" data-i18n="top_guide">Hướng dẫn mua hàng</a></li>
+          <li><a href="policy.html" data-i18n="top_promotions">Chính sách bảo hành trọn đời</a></li>
+          <li><a href="profile.html">
+            <span class="lang-vi">Kho Key & Tài Khoản Của Tôi</span>
+            <span class="lang-en">My Keys & Subscriptions</span>
+          </a></li>
+          <li><a href="blog.html">
+            <span class="lang-vi">Blog chia sẻ kinh nghiệm</span>
+            <span class="lang-en">Tech Experience Blog</span>
+          </a></li>
+          <li><a href="contact.html">
+            <span class="lang-vi">Liên hệ hỗ trợ trực tuyến</span>
+            <span class="lang-en">Online Support Center</span>
+          </a></li>
+          <li><a href="javascript:void(0)" onclick="open2FAModal()">
+            <span class="lang-vi">Công cụ tạo mã 2FA</span>
+            <span class="lang-en">2FA Code Generator</span>
+          </a></li>
+          <li><a href="admin.html">
+            <span class="lang-vi">Trang Quản trị Admin</span>
+            <span class="lang-en">Admin Dashboard</span>
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Phương Thức Thanh Toán</h4>
+        <h4 class="lang-en">Payment Gateways</h4>
+        <p style="font-size: 0.82rem; margin-bottom: 12px;">
+          <span class="lang-vi">Chấp nhận chuyển khoản tất cả ngân hàng Việt Nam & Crypto tự động</span>
+          <span class="lang-en">Accept all Vietnamese bank transfers & Crypto checkouts</span>
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">MB BANK</span>
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">VIETQR</span>
+          <span style="background: #8b5cf6; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">OXAPAY (USDT)</span>
+          <span style="background: #f59e0b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">BINANCE PAY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      © 2026 Tagki. All rights reserved. Designed with precision & high aesthetics.
+    </div>
+  </footer>
+
+  <!-- Product Modal Backdrop -->
+  <div class="modal-backdrop" id="product-modal">
+    <div class="modal-box">
+      <button class="close-modal" onclick="closeProductModal()">✕</button>
+      <div id="product-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Auth Login Modal Backdrop -->
+  <div class="modal-backdrop" id="auth-modal">
+    <div class="modal-box" style="max-width: 440px;">
+      <button class="close-modal" onclick="closeAuthModal()">✕</button>
+      <div id="auth-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Tools Modal Backdrop -->
+  <div class="modal-backdrop" id="tools-modal">
+    <div class="modal-box">
+      <button class="close-modal" onclick="closeToolsModal()">✕</button>
+      <div class="tools-modal-body" id="tools-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Checkout Modal Backdrop -->
+  <div class="modal-backdrop" id="checkout-modal">
+    <div class="modal-box">
+      <button class="close-modal" onclick="closeCheckoutModal()">✕</button>
+      <div id="checkout-modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Cart Drawer Overlay -->
+  <div class="modal-backdrop" id="cart-backdrop" onclick="closeCartDrawer()"></div>
+  <div class="cart-drawer" id="cart-drawer">
+    <div class="cart-header">
+      <h3 data-i18n="cart_title">Giỏ Hàng Của Bạn</h3>
+      <button class="close-modal" onclick="closeCartDrawer()" style="position: static;">✕</button>
+    </div>
+    <div class="cart-body" id="cart-items-container"></div>
+    <div class="cart-footer">
+      <div class="cart-total-row">
+        <span data-i18n="total_price">Tổng cộng:</span>
+        <span id="cart-total-price" style="color: var(--primary);">0đ</span>
+      </div>
+      <button class="checkout-btn" onclick="openCheckoutModal()" data-i18n="proceed_checkout">Tiến Hành Thanh Toán</button>
+    </div>
+  </div>
+
+  <!-- JS Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/db-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/cart.js"></script>
+  <script src="js/social-proof.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Kinh Nghiệm & Thủ Thuật Công Nghệ - Tagki</title>
+  <meta name="description" content="Chia sẻ thủ thuật, kinh nghiệm sử dụng công cụ AI, phần mềm và giải pháp bảo mật tối ưu từ đội ngũ chuyên gia Tagki.">
+  <link rel="icon" href="https://tagki.vn/favicon.ico">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Custom Extra Styles for Blog Page -->
+  <style>
+    .blog-container {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 16px;
+      min-height: 60vh;
+    }
+    .blog-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .blog-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      transition: var(--transition);
+    }
+    .blog-card:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    .blog-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+    .blog-card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+    .blog-meta {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .blog-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .blog-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+      margin-bottom: 16px;
+      flex: 1;
+    }
+    .read-more-btn {
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 0.88rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: auto;
+    }
+    .blog-tag-chip {
+      background: #f1f5f9;
+      color: #475569;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 9999px;
+      margin-right: 6px;
+    }
+    
+    /* Article Detail View Styles */
+    .article-header {
+      margin-bottom: 30px;
+    }
+    .article-title {
+      font-size: 2.2rem;
+      font-weight: 800;
+      line-height: 1.3;
+      color: var(--text-main);
+      margin-bottom: 12px;
+    }
+    .article-meta {
+      display: flex;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+    .article-banner {
+      width: 100%;
+      max-height: 480px;
+      object-fit: cover;
+      border-radius: var(--radius-lg);
+      margin-bottom: 30px;
+      box-shadow: var(--shadow-md);
+    }
+    .article-body {
+      font-size: 1.05rem;
+      line-height: 1.8;
+      color: #334155;
+    }
+    .article-body p {
+      margin-bottom: 20px;
+    }
+    .article-body h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 30px 0 14px;
+    }
+    .article-body blockquote {
+      border-left: 4px solid var(--primary);
+      padding-left: 20px;
+      font-style: italic;
+      color: #475569;
+      background: #f8fafc;
+      padding: 16px 20px;
+      border-radius: 0 12px 12px 0;
+      margin: 20px 0;
+    }
+    .article-body ul, .article-body ol {
+      margin-bottom: 20px;
+      padding-left: 24px;
+    }
+    .article-body li {
+      margin-bottom: 6px;
+    }
+  </style>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Floating Quick Contact Buttons -->
+  <div class="floating-contact-bar">
+    <a href="https://zalo.me/0839888823" target="_blank" class="float-btn float-zalo" title="Chat Zalo +84 908687510">💬</a>
+    <a href="https://t.me/tagki6868" target="_blank" class="float-btn float-telegram" title="Telegram Support">✈️</a>
+    <a href="https://www.facebook.com/tagki686868" target="_blank" class="float-btn float-fb" title="Facebook Messenger">🌐</a>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <a href="guide.html" class="top-link" data-i18n="top_guide">Hướng dẫn mua hàng</a>
+      <a href="policy.html" class="top-link" data-i18n="top_promotions">Chính sách bảo hành</a>
+      <span class="top-link" id="top-hotline-text" data-i18n="top_hotline">Hotline: +84 908687510</span>
+      
+      <!-- Language Switcher Flags -->
+      <div style="display: flex; gap: 8px; margin-left: auto;">
+        <button onclick="setLanguage('vi')" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 4px;" title="Tiếng Việt">🇻🇳</button>
+        <button onclick="setLanguage('en')" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 4px;" title="English">🇬🇧</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <!-- Main Navigation Header -->
+    <div class="main-header">
+      <div class="header-container">
+        <a href="index.html" class="logo-area">
+          <div class="logo-icon">T</div>
+          <span class="logo-text">TAGKI</span>
+        </a>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <a href="index.html" class="action-btn" style="background: rgba(255,255,255,0.2);">
+            <span class="lang-vi">← Về Trang Chủ</span>
+            <span class="lang-en">← Back to Homepage</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Blog main content wrapper -->
+  <main class="blog-container">
+    <div id="blog-list-view">
+      <div style="text-align:center; margin-bottom: 40px;">
+        <div class="lang-vi">
+          <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;">Blog Kinh Nghiệm & Thủ Thuật</h1>
+          <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 6px;">Chia sẻ kinh nghiệm làm việc năng suất, công cụ AI, bảo mật mạng và kỹ năng số đỉnh cao.</p>
+        </div>
+        <div class="lang-en">
+          <h1 style="font-size: 2.2rem; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;">Tech Guide & Tips Blog</h1>
+          <p style="font-size: 0.95rem; color: var(--text-muted); margin-top: 6px;">Sharing productivity tips, AI tools, cybersecurity, and advanced digital skills.</p>
+        </div>
+      </div>
+
+      <!-- Search and Filters -->
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; border-bottom: 1px solid var(--border); padding-bottom: 20px;">
+        <div style="display:flex; gap:8px;" id="blog-tags-box">
+          <button class="blog-tag-chip" style="background:var(--primary); color:white;" onclick="filterBlogTags('all')">
+            <span class="lang-vi">Tất cả</span>
+            <span class="lang-en">All</span>
+          </button>
+          <button class="blog-tag-chip" onclick="filterBlogTags('AI')">AI Tools</button>
+          <button class="blog-tag-chip" onclick="filterBlogTags('IDE')">Coding</button>
+          <button class="blog-tag-chip" onclick="filterBlogTags('Security')">Security</button>
+        </div>
+        <div style="position:relative; width: 300px;">
+          <input type="text" id="blog-search-input" placeholder="Search..." style="width:100%; border: 1px solid var(--border); padding: 10px 14px; border-radius:9999px; font-size:0.85rem;" oninput="searchBlogs()">
+        </div>
+      </div>
+
+      <!-- Blog Grid list -->
+      <div class="blog-grid" id="blogs-list-grid"></div>
+    </div>
+
+    <!-- Article Detail View -->
+    <div id="blog-detail-view" style="display: none;">
+      <a href="javascript:void(0)" onclick="backToBlogList()" style="color: var(--primary); font-weight:800; font-size:0.9rem; display:inline-flex; align-items:center; gap:6px; margin-bottom: 20px;">
+        <span class="lang-vi">← Quay lại danh sách bài viết</span>
+        <span class="lang-en">← Back to article list</span>
+      </a>
+      <article>
+        <div class="article-header">
+          <div style="margin-bottom: 10px;" id="article-tags-container"></div>
+          <h1 class="article-title" id="article-title"></h1>
+          <div class="article-meta">
+            <span id="article-author"></span>
+            <span>•</span>
+            <span id="article-date"></span>
+          </div>
+        </div>
+        <img class="article-banner" id="article-image" src="" alt="">
+        <div class="article-body" id="article-content"></div>
+      </article>
+    </div>
+  </main>
+
+  <!-- Main Footer -->
+  <footer class="main-footer" style="margin-top: 60px;">
+    <div class="footer-container">
+      <div class="footer-col">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <div class="logo-icon" style="background: var(--primary); color: white;">T</div>
+          <span style="font-size: 1.3rem; font-weight: 800; color: white;">Tagki</span>
+        </div>
+        <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px;">
+          <span class="lang-vi">Sàn thương mại điện tử chuyên cung cấp tài khoản số cao cấp, key bản quyền uy tín hàng đầu Việt Nam.</span>
+          <span class="lang-en">E-commerce platform specialized in providing premium digital subscriptions and official keys in Vietnam.</span>
+        </p>
+        <div style="font-size: 0.85rem;">
+          <p style="margin-bottom: 6px;">📍 <span class="lang-vi">Trụ sở: Sài Gòn, Việt Nam</span><span class="lang-en">Headquarters: Saigon, Vietnam</span></p>
+          <p style="margin-bottom: 6px;">📞 Zalo/Phone: <b>+84 908687510</b></p>
+          <p>✉️ Email: support@tagki.com</p>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Sản Phẩm Nổi Bật</h4>
+        <h4 class="lang-en">Featured Products</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="index.html#products-section">ChatGPT Plus Chính Chủ</a></li>
+          <li><a href="index.html#products-section">Claude AI Pro</a></li>
+          <li><a href="index.html#products-section">Cursor Pro & Antigravity</a></li>
+          <li><a href="index.html#products-section">Canva Pro Vĩnh Viễn</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Chính Sách & Hỗ Trợ</h4>
+        <h4 class="lang-en">Policies & Support</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="guide.html" data-i18n="top_guide">Hướng dẫn mua hàng</a></li>
+          <li><a href="policy.html" data-i18n="top_promotions">Chính sách bảo hành trọn đời</a></li>
+          <li><a href="profile.html">
+            <span class="lang-vi">Kho Key & Tài Khoản Của Tôi</span>
+            <span class="lang-en">My Keys & Subscriptions</span>
+          </a></li>
+          <li><a href="blog.html">
+            <span class="lang-vi">Blog chia sẻ kinh nghiệm</span>
+            <span class="lang-en">Tech Experience Blog</span>
+          </a></li>
+          <li><a href="contact.html">
+            <span class="lang-vi">Liên hệ hỗ trợ trực tuyến</span>
+            <span class="lang-en">Online Support Center</span>
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Phương Thức Thanh Toán</h4>
+        <h4 class="lang-en">Payment Gateways</h4>
+        <p style="font-size: 0.82rem; margin-bottom: 12px;">
+          <span class="lang-vi">Chuyển khoản VietQR & Crypto tự động 24/7</span>
+          <span class="lang-en">Automated 24/7 VietQR & Crypto checkouts</span>
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">MB BANK</span>
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">VIETQR</span>
+          <span style="background: #8b5cf6; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">OXAPAY (USDT)</span>
+          <span style="background: #f59e0b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">BINANCE PAY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      © 2026 Tagki. All rights reserved. Designed with precision & high aesthetics.
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/db-client.js"></script>
+  <script src="js/i18n.js"></script>
+  
+  <script>
+    let activeBlogTag = 'all';
+
+    const INITIAL_BLOGS = [
+      {
+        id: "ai-trends-2026",
+        title: "Xu Hướng Công Nghệ AI Năm 2026: ChatGPT & Sora Định Hình Thế Giới",
+        title_en: "AI Trends in 2026: ChatGPT & Sora Reshaping the Digital World",
+        summary: "Tìm hiểu sự phát triển vượt bậc của các mô hình AI tạo video như Sora và các tác vụ agentic AI tự động hóa lập trình.",
+        summary_en: "Explore the massive evolution from passive AI assistants to active agentic AI workflows automating engineering.",
+        content: `
+          <p>Trí tuệ nhân tạo (AI) đang phát triển với tốc độ chóng mặt và đến năm 2026, chúng ta đã chứng kiến sự chuyển dịch mang tính lịch sử từ các trợ lý AI thụ động sang các Agentic AI chủ động tự động hóa toàn bộ quy trình công việc.</p>
+          <blockquote>"Trí tuệ nhân tạo không thay thế con người, nhưng những người biết sử dụng AI sẽ thay thế những người không biết."</blockquote>
+          <h2>1. Sự bùng nổ của Sora và AI Tạo Video</h2>
+          <p>Mô hình Sora của OpenAI cùng Veo của Google đã được nâng cấp lên khả năng kết xuất video chuẩn điện ảnh 4K thời gian thực. Giờ đây, các nhà sáng tạo nội dung chỉ cần viết kịch bản chi tiết bằng văn bản, AI sẽ tự động sinh ra một bộ phim ngắn hoàn chỉnh với các chuyển động vật lý, ánh sáng và đổ bóng hoàn hảo.</p>
+          <h2>2. Agentic AI - Tự động hóa công việc lập trình</h2>
+          <p>Không chỉ dừng lại ở việc sinh code theo dòng, Agentic Coding Assistants (như Google Antigravity) giờ đây hoạt động như một kỹ sư phần mềm thực thụ. Các tác vụ sửa lỗi phức tạp, viết unit test, thậm chí nghiên cứu codebase khổng lồ và thực hiện refactor hàng chục files cùng lúc đều được giải quyết tự động trong vài phút dưới sự giám sát tối thiểu của lập trình viên con người.</p>
+          <h2>3. Lời khuyên cho các chuyên gia số</h2>
+          <p>Để duy trì lợi thế cạnh tranh trong năm 2026, việc trang bị cho mình các tài khoản Premium (ChatGPT Plus, Claude Pro, Cursor Pro) là cực kỳ quan trọng. Sở hữu các công cụ tốt nhất giúp bạn tăng năng suất gấp 3 đến 5 lần và giải phóng sức sáng tạo tối đa.</p>
+        `,
+        content_en: `
+          <p>Artificial Intelligence (AI) is evolving at lightning speed. By 2026, we are witnessing a historic transition from passive AI assistants to active Agentic AI that automates entire business workflows.</p>
+          <blockquote>"AI will not replace humans, but humans who use AI will replace those who do not."</blockquote>
+          <h2>1. The Rise of Sora and Video AI</h2>
+          <p>OpenAI's Sora and Google's Veo have been upgraded to support cinema-grade 4K real-time video rendering. Content creators now only need to write detailed scripts, and the AI will automatically generate a complete video with perfect physical movements, lighting, and shading.</p>
+          <h2>2. Agentic AI - Automating Programming Tasks</h2>
+          <p>Beyond code completion, Agentic Coding Assistants (like Google Antigravity) now act as full software engineers. Complex debugging, unit test creation, and codebase-wide refactoring are resolved automatically within minutes under minimal developer supervision.</p>
+          <h2>3. Advice for Digital Professionals</h2>
+          <p>To stay competitive, equipping yourself with premium subscriptions (ChatGPT Plus, Claude Pro, Cursor Pro) is essential. Having access to the best tools multiplies your productivity by 3 to 5 times and unlocks your maximum creative potential.</p>
+        `,
+        image: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=600&q=80",
+        date: "25/07/2026",
+        author: "Tagki Editor",
+        tags: ["AI", "ChatGPT"],
+        tags_en: ["AI", "ChatGPT"]
+      },
+      {
+        id: "why-use-cursor-ide",
+        title: "Tại Sao Lập Trình Viên Nên Chuyển Sang Sử Dụng Cursor Pro?",
+        title_en: "Why Developers Should Switch to Cursor Pro?",
+        summary: "Khám phá các tính năng ưu việt của AI Code Editor số 1 hiện nay. Tăng tốc độ viết code lên gấp 3 lần với Claude 3.5 Sonnet.",
+        summary_en: "Discover the advanced features of the #1 AI Code Editor. Accelerate your coding workflow up to 3x using Claude 3.5 Sonnet.",
+        content: `
+          <p>Trong cộng đồng lập trình viên toàn cầu hiện nay, Cursor IDE đã nhanh chóng vươn lên thành công cụ AI editor số 1, vượt qua các copilot extensions truyền thống. Điều gì làm nên sức hút đặc biệt này?</p>
+          <h2>1. Tích hợp AI ở cấp độ Editor</h2>
+          <p>Khác với việc cài đặt extension phụ trợ, Cursor được xây dựng trực tiếp trên lõi VS Code nhưng được thiết kế lại hoàn toàn để giao tiếp tối ưu với các mô hình AI lớn nhất như Claude 3.5 Sonnet và GPT-4o.</p>
+          <h2>2. Các tính năng vượt trội giúp x3 năng suất</h2>
+          <ul>
+            <li><b>Cursor Composer (Ctrl + I / Cmd + I):</b> Cho phép bạn giao tiếp với AI để chỉnh sửa code trên MULTIPLE files đồng thời. Bạn chỉ cần mô tả tính năng cần thêm, Cursor sẽ viết code và phân bổ vào các tệp tin cấu hình, routes, views chuẩn xác.</li>
+            <li><b>Tab Autocomplete (Cơ chế tiên đoán thông minh):</b> Đoán trước dòng code tiếp theo của bạn ngay cả trước khi bạn gõ, tự sửa lỗi cú pháp ngay khi bạn viết.</li>
+            <li><b>Chế độ Chat Context lớn:</b> Dễ dàng tag các symbol (@class, @file, @codebase) để AI hiểu sâu về ngữ cảnh toàn bộ dự án của bạn mà không bị tràn bộ nhớ token.</li>
+          </ul>
+          <h2>3. Kết luận</h2>
+          <p>Nếu bạn muốn tiết kiệm thời gian viết boilerplate code để tập trung vào kiến trúc hệ thống và tư duy logic, việc sở hữu tài khoản Cursor Pro chính chủ là sự đầu tư xứng đáng nhất ở thời điểm hiện tại.</p>
+        `,
+        content_en: `
+          <p>In the global developer community, Cursor IDE has quickly risen to become the #1 AI editor, surpassing traditional copilot extensions. What makes it so attractive?</p>
+          <h2>1. Deep Editor-Level AI Integration</h2>
+          <p>Unlike third-party extensions, Cursor is built directly on VS Code but fully redesigned for optimal communication with large models like Claude 3.5 Sonnet and GPT-4o.</p>
+          <h2>2. Advanced Features to Triple Productivity</h2>
+          <ul>
+            <li><b>Cursor Composer (Ctrl + I / Cmd + I):</b> Chat with AI to edit code across MULTIPLE files simultaneously. Just describe what to build, and Cursor will write and place the code into the correct files.</li>
+            <li><b>Tab Autocomplete (Intelligent Prediction):</b> Predicts your next lines of code before you even type them and auto-fixes syntax errors instantly.</li>
+            <li><b>Large Chat Context:</b> Easily tag symbols (@class, @file, @codebase) to feed context to the AI without running out of token memory.</li>
+          </ul>
+          <h2>3. Conclusion</h2>
+          <p>If you want to save time writing boilerplate code and focus on architecture and logic, a Cursor Pro subscription is the best investment you can make right now.</p>
+        `,
+        image: "https://images.unsplash.com/photo-1542831371-29b0f74f9713?auto=format&fit=crop&w=600&q=80",
+        date: "24/07/2026",
+        author: "Dev Admin",
+        tags: ["IDE", "AI"],
+        tags_en: ["IDE", "AI"]
+      },
+      {
+        id: "vpn-protection-guide",
+        title: "Hướng Dẫn Bảo Mật Tài Khoản Số & Dữ Liệu Khi Sử Dụng Wifi Công Cộng",
+        title_en: "Securing Digital Accounts & Data on Public Wi-Fi Networks",
+        summary: "Sử dụng VPN như NordVPN hay AdGuard Premium là cách đơn giản và an toàn nhất để tránh bị nghe lén dữ liệu cá nhân.",
+        summary_en: "Using a VPN like NordVPN or AdGuard Premium is the easiest and safest way to avoid private data snooping.",
+        content: `
+          <p>Wifi công cộng tại các quán cà phê, sân bay, khách sạn vô cùng tiện lợi nhưng cũng ẩn chứa những rủi ro bảo mật khổng lồ. Kẻ xấu có thể dễ dàng thiết lập các điểm phát sóng giả mạo (Man-in-the-Middle) để thu thập mật khẩu, thông tin thẻ tín dụng và dữ liệu nhạy cảm của bạn.</p>
+          <h2>1. Rủi ro từ Wifi công cộng</h2>
+          <p>Khi kết nối vào mạng không có mật khẩu hoặc dùng chung mật khẩu với hàng trăm người khác, dữ liệu truyền đi từ thiết bị của bạn có thể bị rò rỉ nếu website hoặc ứng dụng không sử dụng mã hóa HTTPS mạnh. Hacker cũng có thể chèn các mã độc quảng cáo vào trình duyệt của bạn.</p>
+          <h2>2. Giải pháp lá chắn bảo mật kép</h2>
+          <p>Để lướt web an toàn ở bất kỳ đâu, bạn nên áp dụng bộ đôi giải pháp:</p>
+          <ol>
+            <li><b>NordVPN:</b> Mã hóa toàn bộ lưu lượng truy cập internet qua đường ống VPN quân sự. Ẩn địa chỉ IP thực của bạn và ngăn chặn nhà mạng hoặc hacker theo dõi lịch sử duyệt web.</li>
+            <li><b>AdGuard Premium:</b> Key chặn quảng cáo trọn đời giúp lọc bỏ 100% pop-up, biểu ngữ chứa mã độc hại, đồng thời ngăn chặn các đoạn mã tracker theo dõi dấu chân số của bạn.</li>
+          </ol>
+          <h2>3. Kết luận</h2>
+          <p>Bảo vệ an toàn thông tin cá nhân là nền tảng để tránh các rủi ro lừa đảo công nghệ cao. Hãy kích hoạt VPN mọi lúc mọi khi kết nối vào mạng internet không quen thuộc.</p>
+        `,
+        content_en: `
+          <p>Public Wi-Fi at coffee shops, airports, and hotels is convenient but carries massive security risks. Hackers can easily set up rogue hotspots (Man-in-the-Middle) to steal your passwords, credit card info, and private data.</p>
+          <h2>1. The Dangers of Public Wi-Fi</h2>
+          <p>Connecting to a network with no password (or sharing it with hundreds of others) means your transmitted data is vulnerable if the website or app doesn't use strong HTTPS encryption.</p>
+          <h2>2. Dual-Layer Shield Solution</h2>
+          <p>To browse safely, apply this dual protection strategy:</p>
+          <ol>
+            <li><b>NordVPN:</b> Encrypts all internet traffic through a military-grade secure tunnel, hiding your IP address.</li>
+            <li><b>AdGuard Premium:</b> Lifetime adblocker that blocks 100% of pop-ups and malicious scripts from tracking your digital footprint.</li>
+          </ol>
+          <h2>3. Conclusion</h2>
+          <p>Securing your personal data is vital to prevent modern hacking scams. Enable VPN whenever connecting to unfamiliar networks.</p>
+        `,
+        image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=600&q=80",
+        date: "23/07/2026",
+        author: "Security Expert",
+        tags: ["Security", "VPN"],
+        tags_en: ["Security", "VPN"]
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      initBlogsDatabase();
+      checkUrlRoute();
+    });
+
+    function initBlogsDatabase() {
+      let stored = JSON.parse(localStorage.getItem('tagki_blogs'));
+      if (!stored || stored.length === 0 || !stored[0].title_en) {
+        localStorage.setItem('tagki_blogs', JSON.stringify(INITIAL_BLOGS));
+      }
+    }
+
+    function checkUrlRoute() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const blogId = urlParams.get('id');
+      
+      if (blogId) {
+        renderBlogDetail(blogId);
+      } else {
+        renderBlogList();
+      }
+    }
+
+    function renderBlogList() {
+      document.getElementById('blog-list-view').style.display = 'block';
+      document.getElementById('blog-detail-view').style.display = 'none';
+
+      const grid = document.getElementById('blogs-list-grid');
+      if (!grid) return;
+
+      const blogs = JSON.parse(localStorage.getItem('tagki_blogs')) || INITIAL_BLOGS;
+      
+      // Filter list based on search and tags
+      let filtered = blogs;
+      if (activeBlogTag !== 'all') {
+        filtered = filtered.filter(b => b.tags && b.tags.some(t => t.toUpperCase() === activeBlogTag.toUpperCase()));
+      }
+
+      const q = document.getElementById('blog-search-input')?.value.trim().toLowerCase();
+      if (q && q !== '') {
+        filtered = filtered.filter(b => {
+          const title = currentLang === 'en' ? (b.title_en || b.title) : b.title;
+          const summary = currentLang === 'en' ? (b.summary_en || b.summary) : b.summary;
+          return title.toLowerCase().includes(q) || summary.toLowerCase().includes(q);
+        });
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:50px; color:#64748b; font-weight:700;">
+          ${currentLang === 'en' ? 'No articles found...' : 'Không tìm thấy bài viết nào phù hợp...'}
+        </div>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(b => {
+        const title = currentLang === 'en' ? (b.title_en || b.title) : b.title;
+        const summary = currentLang === 'en' ? (b.summary_en || b.summary) : b.summary;
+        const tags = currentLang === 'en' ? (b.tags_en || b.tags) : b.tags;
+        const btnText = currentLang === 'en' ? "Read Article ➜" : "Đọc bài viết ➜";
+        
+        return `
+          <div class="blog-card">
+            <img src="${b.image}" alt="${title}">
+            <div class="blog-card-body">
+              <div class="blog-meta">
+                📅 ${b.date} • ${currentLang === 'en' ? 'Author' : 'Tác giả'}: ${b.author}
+              </div>
+              <h3 class="blog-title">${title}</h3>
+              <p class="blog-desc">${summary}</p>
+              <div style="margin-bottom: 12px; margin-top: auto;">
+                ${tags ? tags.map(t => `<span class="blog-tag-chip">${t}</span>`).join('') : ''}
+              </div>
+              <a href="blog.html?id=${b.id}" class="read-more-btn">${btnText}</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderBlogDetail(id) {
+      document.getElementById('blog-list-view').style.display = 'none';
+      document.getElementById('blog-detail-view').style.display = 'block';
+
+      const blogs = JSON.parse(localStorage.getItem('tagki_blogs')) || INITIAL_BLOGS;
+      const b = blogs.find(item => item.id === id);
+
+      if (!b) {
+        document.getElementById('blog-detail-view').innerHTML = `
+          <div style="text-align:center; padding: 50px;">
+            <h2>${currentLang === 'en' ? 'Article not found' : 'Bài viết không tồn tại'}</h2>
+            <a href="blog.html" style="color:var(--primary); font-weight:800; margin-top:14px; display:inline-block;">
+              ${currentLang === 'en' ? '← Back to Blog List' : '← Quay lại danh sách Blog'}
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      const title = currentLang === 'en' ? (b.title_en || b.title) : b.title;
+      const content = currentLang === 'en' ? (b.content_en || b.content) : b.content;
+      const tags = currentLang === 'en' ? (b.tags_en || b.tags) : b.tags;
+
+      document.title = `${title} - Blog Tagki`;
+      document.getElementById('article-title').textContent = title;
+      document.getElementById('article-author').innerHTML = `✍️ ${currentLang === 'en' ? 'Author' : 'Tác giả'}: <b>${b.author}</b>`;
+      document.getElementById('article-date').innerHTML = `📅 ${currentLang === 'en' ? 'Published' : 'Ngày đăng'}: ${b.date}`;
+      document.getElementById('article-image').src = b.image;
+      document.getElementById('article-image').alt = title;
+      document.getElementById('article-content').innerHTML = content;
+
+      const tagsContainer = document.getElementById('article-tags-container');
+      if (tagsContainer) {
+        tagsContainer.innerHTML = tags ? tags.map(t => `<span class="blog-tag-chip" style="background:rgba(37,121,242,0.1); color:var(--primary); font-size:0.8rem; padding:4px 12px;">${t}</span>`).join('') : '';
+      }
+    }
+
+    function backToBlogList() {
+      window.history.pushState({}, '', window.location.pathname);
+      activeBlogTag = 'all';
+      if (document.getElementById('blog-search-input')) document.getElementById('blog-search-input').value = '';
+      
+      const chips = document.querySelectorAll('#blog-tags-box .blog-tag-chip');
+      chips.forEach((c, i) => {
+        if (i === 0) {
+          c.style.background = 'var(--primary)';
+          c.style.color = 'white';
+        } else {
+          c.style.background = '#f1f5f9';
+          c.style.color = '#475569';
+        }
+      });
+
+      renderBlogList();
+    }
+
+    function filterBlogTags(tag) {
+      activeBlogTag = tag;
+      const chips = document.querySelectorAll('#blog-tags-box .blog-tag-chip');
+      chips.forEach(c => {
+        const text = c.textContent.trim().toUpperCase();
+        if (text === tag.toUpperCase() || (tag === 'all' && (text === 'TẤT CẢ' || text === 'ALL'))) {
+          c.style.background = 'var(--primary)';
+          c.style.color = 'white';
+        } else {
+          c.style.background = '#f1f5f9';
+          c.style.color = '#475569';
+        }
+      });
+      renderBlogList();
+    }
+
+    function searchBlogs() {
+      renderBlogList();
+    }
+  </script>
+</body>
+</html>

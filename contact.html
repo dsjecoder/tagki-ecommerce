@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Liên Hệ & Hỗ Trợ Kỹ Thuật - Tagki</title>
+  <meta name="description" content="Liên hệ với bộ phận chăm sóc khách hàng và hỗ trợ kỹ thuật của Tagki. Phục vụ 24/7 qua Zalo, Telegram và Facebook.">
+  <link rel="icon" href="https://tagki.vn/favicon.ico">
+  
+  <!-- CSS Styles -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <!-- Custom Extra Styles for Contact Page -->
+  <style>
+    .contact-grid-page {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+      margin: 40px auto;
+      max-width: 1320px;
+      padding: 0 16px;
+    }
+    .contact-card-box {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+    .contact-card-box:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-md);
+    }
+    .support-badge-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.5rem;
+    }
+    .faq-item {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: white;
+    }
+    .faq-question {
+      padding: 16px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+      transition: var(--transition);
+      user-select: none;
+    }
+    .faq-question:hover {
+      background: #f1f5f9;
+      color: var(--primary);
+    }
+    .faq-answer {
+      padding: 0 16px;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s cubic-bezier(0, 1, 0, 1);
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .faq-item.active .faq-answer {
+      padding: 16px;
+      max-height: 500px;
+      border-top: 1px solid var(--border);
+    }
+    .faq-item.active .faq-icon {
+      transform: rotate(180deg);
+    }
+    .faq-icon {
+      transition: var(--transition);
+    }
+    .form-group-contact {
+      margin-bottom: 16px;
+    }
+    .form-group-contact label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      color: var(--text-main);
+    }
+    .form-input-contact {
+      width: 100%;
+      border: 1px solid var(--border);
+      padding: 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.88rem;
+      transition: var(--transition);
+      background: #f8fafc;
+    }
+    .form-input-contact:focus {
+      outline: none;
+      background: white;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37, 121, 242, 0.15);
+    }
+  </style>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Floating Quick Contact Buttons -->
+  <div class="floating-contact-bar">
+    <a href="https://zalo.me/0839888823" target="_blank" class="float-btn float-zalo" title="Chat Zalo +84 908687510">💬</a>
+    <a href="https://t.me/tagki6868" target="_blank" class="float-btn float-telegram" title="Telegram Support">✈️</a>
+    <a href="https://www.facebook.com/tagki686868" target="_blank" class="float-btn float-fb" title="Facebook Messenger">🌐</a>
+  </div>
+
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <a href="guide.html" class="top-link" data-i18n="top_guide">Hướng dẫn mua hàng</a>
+      <a href="policy.html" class="top-link" data-i18n="top_promotions">Chính sách bảo hành</a>
+      <span class="top-link" id="top-hotline-text" data-i18n="top_hotline">Hotline: +84 908687510</span>
+      
+      <!-- Language Switcher Flags -->
+      <div style="display: flex; gap: 8px; margin-left: auto;">
+        <button onclick="setLanguage('vi')" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 4px;" title="Tiếng Việt">🇻🇳</button>
+        <button onclick="setLanguage('en')" style="background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0 4px;" title="English">🇬🇧</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <!-- Main Navigation Header -->
+    <div class="main-header">
+      <div class="header-container">
+        <!-- Logo -->
+        <a href="index.html" class="logo-area">
+          <div class="logo-icon">T</div>
+          <span class="logo-text">TAGKI</span>
+        </a>
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+          <a href="index.html" class="action-btn" style="background: rgba(255,255,255,0.2);">
+            <span class="lang-vi">← Về Trang Chủ</span>
+            <span class="lang-en">← Back to Homepage</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner -->
+  <section style="background: linear-gradient(135deg, #1e3a8a, #0d1b2a); color: white; padding: 60px 20px; text-align: center;">
+    <div class="lang-vi">
+      <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px;">Trung Tâm Trợ Giúp & Hỗ Trợ Khách Hàng</h1>
+      <p style="font-size: 1rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">Tagki sẵn sàng giải đáp và xử lý mọi vấn đề liên quan tới kích hoạt tài khoản, thanh toán và bảo hành 24/7.</p>
+    </div>
+    <div class="lang-en">
+      <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px;">Help Center & Customer Support</h1>
+      <p style="font-size: 1rem; color: #94a3b8; max-width: 600px; margin: 0 auto;">Tagki is ready to answer and resolve all issues regarding account activation, payments, and warranty 24/7.</p>
+    </div>
+  </section>
+
+  <!-- Content Section -->
+  <div class="contact-grid-page">
+    
+    <!-- Left Pane: Contact methods -->
+    <div>
+      <div class="lang-vi">
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Kênh Hỗ Trợ Nhanh Trực Tuyến</h2>
+      </div>
+      <div class="lang-en">
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Fast Online Support Channels</h2>
+      </div>
+      
+      <div style="display: flex; flex-direction: column; gap: 16px;">
+        
+        <!-- Zalo Card -->
+        <div class="contact-card-box" style="display: flex; gap: 16px; align-items: center; border-left: 5px solid #0284c7;">
+          <div class="support-badge-icon" style="background: rgba(2,132,199,0.1); color: #0284c7;">💬</div>
+          <div style="flex:1;">
+            <div class="lang-vi">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Kênh Chat Zalo CSKH</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Phản hồi trong 1-3 phút. Hỗ trợ kích hoạt, bảo hành, xử lý lỗi nhanh qua UltraViewer.</p>
+              <a href="https://zalo.me/0839888823" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #0284c7; margin-top: 6px;">Chat Zalo Ngay ➜</a>
+            </div>
+            <div class="lang-en">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Zalo Chat CSKH</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Response in 1-3 mins. Fast activation, warranty, and troubleshooting via UltraViewer.</p>
+              <a href="https://zalo.me/0839888823" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #0284c7; margin-top: 6px;">Chat Zalo Now ➜</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Telegram Card -->
+        <div class="contact-card-box" style="display: flex; gap: 16px; align-items: center; border-left: 5px solid #2563eb;">
+          <div class="support-badge-icon" style="background: rgba(37,99,235,0.1); color: #2563eb;">✈️</div>
+          <div style="flex:1;">
+            <div class="lang-vi">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Hỗ Trợ Kỹ Thuật Telegram</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Phản hồi ngay tức thì. Kênh hỗ trợ chuyên nghiệp cho lập trình viên và khách hàng quốc tế.</p>
+              <a href="https://t.me/tagki6868" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #2563eb; margin-top: 6px;">Chat Telegram Ngay ➜</a>
+            </div>
+            <div class="lang-en">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Telegram Tech Support</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Instant replies. Professional support channel for developers and international customers.</p>
+              <a href="https://t.me/tagki6868" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #2563eb; margin-top: 6px;">Chat Telegram Now ➜</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- FB Card -->
+        <div class="contact-card-box" style="display: flex; gap: 16px; align-items: center; border-left: 5px solid #3b82f6;">
+          <div class="support-badge-icon" style="background: rgba(59,130,246,0.1); color: #3b82f6;">🌐</div>
+          <div style="flex:1;">
+            <div class="lang-vi">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Fanpage Facebook Messenger</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Tư vấn mua hàng, giải đáp thắc mắc dịch vụ và đăng ký CTV.</p>
+              <a href="https://www.facebook.com/tagki686868" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #3b82f6; margin-top: 6px;">Gửi Tin Nhắn FB ➜</a>
+            </div>
+            <div class="lang-en">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Facebook Messenger Support</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Direct messaging via Messenger. Keep updated on promotion news and hot deals.</p>
+              <a href="https://www.facebook.com/tagki686868" target="_blank" style="display: inline-block; font-weight: 800; font-size: 0.82rem; color: #3b82f6; margin-top: 6px;">Message Us on FB ➜</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hotline Card -->
+        <div class="contact-card-box" style="display: flex; gap: 16px; align-items: center; border-left: 5px solid var(--accent-orange);">
+          <div class="support-badge-icon" style="background: rgba(249,115,22,0.1); color: #f97316;">📞</div>
+          <div style="flex:1;">
+            <div class="lang-vi">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Hotline Gọi Điện Khẩn Cấp</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Hỗ trợ trường hợp khẩn cấp khi đơn hàng gặp trục trặc ngoài giờ làm việc.</p>
+            </div>
+            <div class="lang-en">
+              <h4 style="font-weight: 800; font-size: 0.95rem; margin-bottom: 2px;">Emergency Hotline Support</h4>
+              <p style="font-size: 0.8rem; color: var(--text-muted);">Emergency helpline support when orders face issues outside office hours.</p>
+            </div>
+            <span style="font-weight: 800; color: #f97316; font-size: 0.95rem;">+84 908687510</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Right Pane: Ticket form -->
+    <div>
+      <div class="lang-vi">
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Gửi Yêu Cầu Hỗ Trợ Trực Tuyến</h2>
+      </div>
+      <div class="lang-en">
+        <h2 style="font-size: 1.3rem; font-weight: 800; color: var(--text-main); margin-bottom: 20px;">Submit Online Support Ticket</h2>
+      </div>
+      
+      <div class="contact-card-box">
+        <form onsubmit="submitSupportTicket(event)">
+          <div class="form-group-contact">
+            <label class="lang-vi">Họ và Tên của bạn *</label>
+            <label class="lang-en">Your Full Name *</label>
+            <input type="text" id="t-name" required placeholder="Nguyễn Văn A" class="form-input-contact">
+          </div>
+          
+          <div class="form-group-contact">
+            <label class="lang-vi">Địa chỉ Email nhận phản hồi *</label>
+            <label class="lang-en">Email Address for Replies *</label>
+            <input type="email" id="t-email" required placeholder="email@gmail.com" class="form-input-contact">
+          </div>
+          
+          <div class="form-group-contact">
+            <label class="lang-vi">Vấn đề cần hỗ trợ *</label>
+            <label class="lang-en">Issue Category *</label>
+            
+            <select id="t-subject" class="form-input-contact" style="height: 44px; padding: 8px 12px;">
+              <option value="delivery" class="lang-vi">Chưa nhận được key / tài khoản</option>
+              <option value="delivery" class="lang-en">Key / Account not received</option>
+              <option value="activation" class="lang-vi">Lỗi kích hoạt / Sai thông tin đăng nhập</option>
+              <option value="activation" class="lang-en">Activation error / Wrong login credentials</option>
+              <option value="warranty" class="lang-vi">Bảo hành / Đổi trả tài khoản</option>
+              <option value="warranty" class="lang-en">Warranty / Account exchange request</option>
+              <option value="payment" class="lang-vi">Trục trặc chuyển khoản thanh toán</option>
+              <option value="payment" class="lang-en">Billing / Payment transaction issue</option>
+              <option value="other" class="lang-vi">Vấn đề kỹ thuật khác</option>
+              <option value="other" class="lang-en">Other technical issue</option>
+            </select>
+          </div>
+          
+          <div class="form-group-contact">
+            <label class="lang-vi">Nội dung chi tiết yêu cầu *</label>
+            <label class="lang-en">Detailed Request Description *</label>
+            
+            <textarea id="t-message" required rows="4" placeholder="Nhập rõ mô tả lỗi..." class="form-input-contact" style="font-family: inherit; resize: none;"></textarea>
+          </div>
+          
+          <button type="submit" style="width: 100%; background: linear-gradient(90deg, #2579f2, #1e6fdc); color: white; font-weight: 800; font-size: 0.95rem; border: none; padding: 12px; border-radius: 10px; box-shadow: 0 4px 12px rgba(37,121,242,0.3); margin-top: 6px; cursor: pointer;">
+            <span class="lang-vi">Gửi Ticket Hỗ Trợ ✉</span>
+            <span class="lang-en">Submit Support Ticket ✉</span>
+          </button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAQ Accordion section -->
+  <section style="max-width: 1000px; margin: 50px auto; padding: 0 16px;">
+    <div class="lang-vi">
+      <h2 style="font-size: 1.5rem; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 24px;">Câu Hỏi Thường Gặp (FAQs)</h2>
+    </div>
+    <div class="lang-en">
+      <h2 style="font-size: 1.5rem; font-weight: 800; text-align: center; color: var(--text-main); margin-bottom: 24px;">Frequently Asked Questions (FAQs)</h2>
+    </div>
+    
+    <div style="display: flex; flex-direction: column;">
+      
+      <!-- FAQ 1 -->
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span class="lang-vi">⏱ Tôi sẽ nhận được key/tài khoản trong bao lâu sau khi thanh toán?</span>
+          <span class="lang-en">⏱ How long will I receive the key/account after payment?</span>
+          <span class="faq-icon">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="lang-vi">
+            Hệ thống của Tagki giao hàng tự động. Ngay sau khi bạn chuyển khoản đúng số tiền và nội dung mã đơn hàng (ví dụ: ET-123456), hệ thống sẽ khớp đơn trong vòng 1-3 phút và hiển thị thông tin tài khoản/key tại trang <b>Lịch sử mua hàng</b>, đồng thời gửi email thông báo trực tiếp cho bạn.
+          </div>
+          <div class="lang-en">
+            Tagki uses an automated delivery system. Immediately after you transfer the correct amount with the order code (e.g. ET-123456), the system matches the transaction within 1-3 minutes, displays the key/account details on your Order History page, and sends a notification email directly to you.
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ 2 -->
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span class="lang-vi">🛡️ Chính sách bảo hành trọn thời gian hoạt động như thế nào?</span>
+          <span class="lang-en">🛡️ How does the full-time warranty work?</span>
+          <span class="faq-icon">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="lang-vi">
+            Tất cả tài khoản số và phần mềm mua tại Tagki đều được bảo hành 1 đổi 1 trong suốt thời gian sử dụng dịch vụ đăng ký (ví dụ: mua gói 1 năm bảo hành đúng 365 ngày). Nếu gặp bất kỳ lỗi đăng nhập hoặc mất premium, bạn chỉ cần liên hệ Zalo CSKH để được nhân viên kỹ thuật cấp tài khoản mới hoặc sửa lỗi trong vòng 5-15 phút.
+          </div>
+          <div class="lang-en">
+            All digital subscriptions and licenses purchased at Tagki include a 1-to-1 replacement warranty for the duration of the subscription. If you face login issues or loss of premium features, simply contact us via Zalo or Telegram, and we will issue a new account or fix it within 5-15 minutes.
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ 3 -->
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span class="lang-vi">💰 Tôi có thể thanh toán bằng tiền mã hóa (Crypto) không?</span>
+          <span class="lang-en">💰 Can I pay using cryptocurrency?</span>
+          <span class="faq-icon">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="lang-vi">
+            Có. Hệ thống hỗ trợ cổng thanh toán OxaPay và Binance Pay. Bạn có thể thanh toán trực tiếp qua USDT (TRC20, BEP20) hoặc Binance Pay ID không mất phí gas. Hệ thống tự động quy đổi tỷ giá VND/USD và bàn giao tài khoản ngay sau khi giao dịch có đủ 1 confirm trên mạng Blockchain.
+          </div>
+          <div class="lang-en">
+            Yes, we support OxaPay and Binance Pay. You can pay with USDT (TRC20, BEP20) or Binance Pay ID. The system automatically converts VND/USD rates and delivers your purchase once the transaction has 1 confirmation on the blockchain network.
+          </div>
+        </div>
+      </div>
+
+      <!-- FAQ 4 -->
+      <div class="faq-item">
+        <div class="faq-question" onclick="toggleFaq(this)">
+          <span class="lang-vi">🔑 Gói nâng cấp chính chủ là gì? Có bị mất dữ liệu cũ không?</span>
+          <span class="lang-en">🔑 What is an official personal upgrade? Will I lose my data?</span>
+          <span class="faq-icon">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="lang-vi">
+            Gói nâng cấp chính chủ là hình thức kích hoạt Premium trực tiếp trên chính email cá nhân hiện tại của bạn (ví dụ như nâng cấp Canva Pro, Zoom Pro, Youtube Premium,...). Mọi thông tin, dữ liệu, thiết kế và lịch sử sử dụng của bạn sẽ được giữ nguyên 100%, bảo mật và không bị chia sẻ với bất kỳ ai.
+          </div>
+          <div class="lang-en">
+            An official upgrade activates Premium status directly on your personal email account (e.g. Canva Pro, Zoom Pro, Youtube Premium, etc.). All your custom designs, configurations, histories, and data are 100% preserved, secure, and private.
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Main Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-col">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+          <div class="logo-icon" style="background: var(--primary); color: white;">T</div>
+          <span style="font-size: 1.3rem; font-weight: 800; color: white;">Tagki</span>
+        </div>
+        <p style="font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px;">
+          <span class="lang-vi">Sàn thương mại điện tử chuyên cung cấp tài khoản số cao cấp, key bản quyền uy tín hàng đầu Việt Nam.</span>
+          <span class="lang-en">E-commerce platform specialized in providing premium digital subscriptions and official keys in Vietnam.</span>
+        </p>
+        <div style="font-size: 0.85rem;">
+          <p style="margin-bottom: 6px;">📍 <span class="lang-vi">Trụ sở: Sài Gòn, Việt Nam</span><span class="lang-en">Headquarters: Saigon, Vietnam</span></p>
+          <p style="margin-bottom: 6px;">📞 Zalo/Phone: <b>+84 908687510</b></p>
+          <p>✉️ Email: support@tagki.com</p>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Sản Phẩm Nổi Bật</h4>
+        <h4 class="lang-en">Featured Products</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="index.html#products-section">ChatGPT Plus Chính Chủ</a></li>
+          <li><a href="index.html#products-section">Claude AI Pro</a></li>
+          <li><a href="index.html#products-section">Cursor Pro & Antigravity</a></li>
+          <li><a href="index.html#products-section">Canva Pro Vĩnh Viễn</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Chính Sách & Hỗ Trợ</h4>
+        <h4 class="lang-en">Policies & Support</h4>
+        <ul class="footer-links" style="font-size: 0.85rem;">
+          <li><a href="guide.html" data-i18n="top_guide">Hướng dẫn mua hàng</a></li>
+          <li><a href="policy.html" data-i18n="top_promotions">Chính sách bảo hành trọn đời</a></li>
+          <li><a href="profile.html">
+            <span class="lang-vi">Kho Key & Tài Khoản Của Tôi</span>
+            <span class="lang-en">My Keys & Subscriptions</span>
+          </a></li>
+          <li><a href="blog.html">
+            <span class="lang-vi">Blog chia sẻ kinh nghiệm</span>
+            <span class="lang-en">Tech Experience Blog</span>
+          </a></li>
+          <li><a href="contact.html">
+            <span class="lang-vi">Liên hệ hỗ trợ trực tuyến</span>
+            <span class="lang-en">Online Support Center</span>
+          </a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4 class="lang-vi">Phương Thức Thanh Toán</h4>
+        <h4 class="lang-en">Payment Gateways</h4>
+        <p style="font-size: 0.82rem; margin-bottom: 12px;">
+          <span class="lang-vi">Chuyển khoản VietQR & Crypto tự động 24/7</span>
+          <span class="lang-en">Automated 24/7 VietQR & Crypto checkouts</span>
+        </p>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">MB BANK</span>
+          <span style="background: #1e293b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">VIETQR</span>
+          <span style="background: #8b5cf6; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">OXAPAY (USDT)</span>
+          <span style="background: #f59e0b; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; color: white; font-weight: 700;">BINANCE PAY</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      © 2026 Tagki. All rights reserved. Designed with precision & high aesthetics.
+    </div>
+  </footer>
+
+  <script>
+    function toggleFaq(element) {
+      const item = element.closest('.faq-item');
+      item.classList.toggle('active');
+    }
+
+    function submitSupportTicket(event) {
+      event.preventDefault();
+      const name = document.getElementById('t-name').value.trim();
+      const email = document.getElementById('t-email').value.trim();
+      const msg = document.getElementById('t-message').value.trim();
+
+      const isEn = (currentLang === 'en');
+      const alertMsg = isEn 
+        ? `🎉 Thank you ${name}! Your ticket #TK-${Math.floor(100000 + Math.random() * 900000)} has been created successfully. We will reply to ${email} within 30 minutes.`
+        : `🎉 Cám ơn ${name}! Yêu cầu hỗ trợ đã được tạo thành công dưới mã vé #TK-${Math.floor(100000 + Math.random() * 900000)}. Chúng tôi sẽ gửi email phản hồi về địa chỉ ${email} trong vòng tối đa 30 phút.`;
+
+      alert(alertMsg);
+      
+      document.getElementById('t-name').value = '';
+      document.getElementById('t-email').value = '';
+      document.getElementById('t-message').value = '';
+    }
+  </script>
+
+  <script src="js/data.js"></script>
+  <script src="js/db-client.js"></script>
+  <script src="js/i18n.js"></script>
+</body>
+</html>

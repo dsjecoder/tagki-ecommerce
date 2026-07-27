@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lịch Sử Đơn Hàng & Tài Khoản - TAGKI</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-content">
+      <span style="margin-right: auto; font-weight: 700; color: #fde047;">🌐 Tagki Customer Portal</span>
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <button class="lang-btn" data-lang="vi" onclick="setLanguage('vi')" style="background:none; border:none; cursor:pointer; font-size:1.1rem;" title="Tiếng Việt">🇻🇳</button>
+        <button class="lang-btn" data-lang="en" onclick="setLanguage('en')" style="background:none; border:none; cursor:pointer; font-size:1.1rem;" title="English">🇬🇧</button>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="main-header">
+      <div class="header-container">
+        <a href="index.html" class="logo-area">
+          <div class="logo-icon">T</div>
+          <span class="logo-text">TAGKI</span>
+        </a>
+        <div style="display: flex; gap: 12px; align-items: center;">
+          <a href="index.html" class="action-btn" style="background: rgba(255,255,255,0.2); text-decoration: none;">
+            <span class="lang-vi">← Quay về Trang Chủ</span>
+            <span class="lang-en">← Back to Homepage</span>
+          </a>
+          <button onclick="logoutUser(); window.location.href='index.html';" class="action-btn" style="background: #ef4444; color: white;">
+            <span class="lang-vi">Đăng Xuất</span>
+            <span class="lang-en">Logout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main style="max-width: 1000px; margin: 40px auto; padding: 0 16px;">
+    <!-- Profile Info Box -->
+    <div id="user-info-card" style="background: white; border-radius: 16px; padding: 24px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.05); display: flex; align-items: center; gap: 20px; margin-bottom: 30px;">
+      <img id="user-avatar" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80" alt="User Avatar" style="width: 72px; height: 72px; border-radius: 50%; object-fit: cover; border: 3px solid #2579f2;">
+      <div>
+        <h2 id="user-name" style="font-size: 1.4rem; font-weight: 800; color: #0f172a;"></h2>
+        <p id="user-email" style="font-size: 0.9rem; color: #64748b; margin-top: 2px;"></p>
+        <span style="display: inline-block; margin-top: 8px; background: #e0f2fe; color: #0284c7; font-weight: 700; font-size: 0.78rem; padding: 4px 12px; border-radius: 9999px;">
+          <span class="lang-vi">Tài khoản Khách hàng đã xác thực</span>
+          <span class="lang-en">Verified Customer Account</span>
+        </span>
+      </div>
+    </div>
+
+    <!-- Orders History -->
+    <h3 style="font-size: 1.2rem; font-weight: 800; color: #0f172a; margin-bottom: 16px;">
+      <span class="lang-vi">Lịch Sử Mua Hàng & Kho Key/Tài Khoản</span>
+      <span class="lang-en">Order History & Key Chest</span>
+    </h3>
+    
+    <div id="orders-list-container" style="display: flex; flex-direction: column; gap: 16px;"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="main-footer" style="margin-top: 80px;">
+    <div class="bottom-bar">
+      © 2026 Tagki. All rights reserved. Designed with precision & high aesthetics.
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/db-client.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/auth.js"></script>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!currentUser) {
+        alert(currentLang === 'en' ? "Please sign in to view your order history!" : "Vui lòng đăng nhập để xem lịch sử mua hàng!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      document.getElementById('user-name').textContent = currentUser.fullName;
+      document.getElementById('user-email').textContent = currentUser.email;
+      if (currentUser.avatar) document.getElementById('user-avatar').src = currentUser.avatar;
+
+      renderProfileOrders();
+    });
+
+    function renderProfileOrders() {
+      const container = document.getElementById('orders-list-container');
+      if (!container) return;
+
+      // Check if user has orders in localStorage first
+      let localOrders = JSON.parse(localStorage.getItem('tagki_orders')) || [];
+      
+      // Filter orders by current user's email
+      let userOrders = localOrders.filter(o => o.email === currentUser.email);
+
+      // If no orders, supply premium mock ones representing history
+      if (userOrders.length === 0) {
+        userOrders = [
+          {
+            code: "ET-883921",
+            date: "24/07/2026 15:30",
+            product: "ChatGPT Plus (GPT-4o & Sora)",
+            price: 249000,
+            status: "delivered",
+            credential: "Email: tagki.plus01@gmail.com | Pass: Premium2026@ | Exp: 24/08/2026"
+          },
+          {
+            code: "ET-449120",
+            date: "20/07/2026 10:15",
+            product: "Canva Pro - Nâng Cấp Email",
+            price: 99000,
+            status: "delivered",
+            credential: "Đã kích hoạt trực tiếp trên Email: " + currentUser.email + " (Bảo hành vĩnh viễn)"
+          }
+        ];
+      }
+
+      if (userOrders.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: #64748b; font-weight: 700; background: white; border-radius: 12px; border: 1px solid #e2e8f0;">
+            <span class="lang-vi">Bạn chưa có đơn hàng nào.</span>
+            <span class="lang-en">You do not have any orders yet.</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = userOrders.map(ord => `
+        <div style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; padding: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 12px;">
+            <div>
+              <span style="font-weight: 800; font-size: 0.95rem; color: #2579f2;">
+                <span class="lang-vi">Mã đơn:</span>
+                <span class="lang-en">Order ID:</span>
+                ${ord.code}
+              </span>
+              <span style="font-size: 0.8rem; color: #94a3b8; margin-left: 12px;">${ord.date}</span>
+            </div>
+            <span style="background: #dcfce7; color: #166534; font-size: 0.78rem; font-weight: 700; padding: 4px 10px; border-radius: 9999px;">
+              <span class="lang-vi">Đã bàn giao tài khoản</span>
+              <span class="lang-en">Account Delivered</span>
+            </span>
+          </div>
+
+          <div style="font-weight: 700; font-size: 1rem; color: #0f172a; margin-bottom: 6px;">${ord.product}</div>
+          <div style="font-size: 0.9rem; font-weight: 800; color: #2579f2; margin-bottom: 12px;">${formatCurrency(ord.price)}</div>
+
+          <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px;">
+            <div style="font-size: 0.78rem; font-weight: 700; color: #475569; margin-bottom: 4px;">
+              <span class="lang-vi">🔑 Thông tin Tài khoản / Key nhận được:</span>
+              <span class="lang-en">🔑 Delivered Account / Key details:</span>
+            </div>
+            <div style="font-family: monospace; font-size: 0.9rem; color: #0f172a; font-weight: 700; word-break: break-all;">${ord.credential}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>
