@@ -26,7 +26,22 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function checkAdminAuth() {
-  const currentAdmin = JSON.parse(localStorage.getItem('tagki_admin_session'));
+  let currentAdmin = JSON.parse(localStorage.getItem('tagki_admin_session'));
+
+  // Auto-login if there is an active client user session with admin role
+  if (!currentAdmin) {
+    const clientUser = JSON.parse(localStorage.getItem('tagki_user'));
+    if (clientUser && clientUser.role === 'admin') {
+      currentAdmin = {
+        email: clientUser.email,
+        fullName: clientUser.fullName || "Tagki Custom Admin",
+        role: "admin",
+        loginTime: new Date().toISOString()
+      };
+      localStorage.setItem('tagki_admin_session', JSON.stringify(currentAdmin));
+    }
+  }
+
   const loginScreen = document.getElementById('admin-login-screen');
 
   if (currentAdmin && currentAdmin.role === 'admin') {
@@ -60,22 +75,36 @@ function checkAdminAuth() {
 
 function handleAdminLogin(event) {
   event.preventDefault();
-  const email = document.getElementById('admin-login-email')?.value;
+  const email = document.getElementById('admin-login-email')?.value.trim().toLowerCase();
   const pass = document.getElementById('admin-login-pass')?.value;
 
   const adminCreds = JSON.parse(localStorage.getItem('tagki_admin_creds')) || { email: 'admin@tagki.vn', pass: 'admin123' };
 
-  if (email === adminCreds.email && pass === adminCreds.pass) {
+  // Check if email belongs to a custom registered admin
+  const users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  const customAdmin = users.find(u => u.email.toLowerCase() === email && u.role === 'admin' && u.status === 'active');
+
+  let isAuthenticated = false;
+  let fullName = "Tagki Admin";
+
+  if (email === adminCreds.email.toLowerCase() && pass === adminCreds.pass) {
+    isAuthenticated = true;
+  } else if (customAdmin && customAdmin.password && customAdmin.password === pass) {
+    isAuthenticated = true;
+    fullName = customAdmin.name;
+  }
+
+  if (isAuthenticated) {
     const adminSession = {
       email: email,
-      fullName: "Tagki Admin",
+      fullName: fullName,
       role: "admin",
       loginTime: new Date().toISOString()
     };
     localStorage.setItem('tagki_admin_session', JSON.stringify(adminSession));
     checkAdminAuth();
   } else {
-    alert(`❌ Sai Email hoặc Mật khẩu Quản trị! (Mặc định: ${adminCreds.email} / ${adminCreds.pass})`);
+    alert("❌ Sai Email hoặc Mật khẩu Quản trị!");
   }
 }
 
@@ -712,21 +741,114 @@ function toggleUserStatus(userId) {
 }
 
 function editUser(userId) {
+  openUserFormModal(userId);
+}
+
+function openUserFormModal(userId = null) {
+  const modal = document.getElementById('user-form-modal');
+  const title = document.getElementById('user-modal-title');
+  const emailInput = document.getElementById('uf-email');
+  const nameInput = document.getElementById('uf-name');
+  const passwordInput = document.getElementById('uf-password');
+  const roleInput = document.getElementById('uf-role');
+  const statusInput = document.getElementById('uf-status');
+  const idInput = document.getElementById('uf-id');
+
+  if (!modal) return;
+
+  if (userId) {
+    // Edit mode
+    const users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+    const user = users.find(u => String(u.id) === String(userId));
+    if (!user) return;
+
+    title.textContent = "Chỉnh Sửa Thành Viên";
+    idInput.value = user.id;
+    emailInput.value = user.email;
+    emailInput.readOnly = true;
+    nameInput.value = user.name;
+    passwordInput.value = ""; // Don't show password
+    passwordInput.placeholder = "Bỏ trống để giữ nguyên mật khẩu cũ";
+    roleInput.value = user.role || "customer";
+    statusInput.value = user.status || "active";
+  } else {
+    // Add mode
+    title.textContent = "Thêm Thành Viên Mới";
+    idInput.value = "";
+    emailInput.value = "";
+    emailInput.readOnly = false;
+    nameInput.value = "";
+    passwordInput.value = "";
+    passwordInput.placeholder = "Nhập mật khẩu cho tài khoản mới";
+    roleInput.value = "customer";
+    statusInput.value = "active";
+  }
+
+  modal.style.display = 'flex';
+}
+
+function closeUserFormModal() {
+  const modal = document.getElementById('user-form-modal');
+  if (modal) modal.style.display = 'none';
+}
+
+function handleSaveUserForm(e) {
+  e.preventDefault();
+  const id = document.getElementById('uf-id').value;
+  const email = document.getElementById('uf-email').value.trim().toLowerCase();
+  const name = document.getElementById('uf-name').value.trim();
+  const password = document.getElementById('uf-password').value;
+  const role = document.getElementById('uf-role').value;
+  const status = document.getElementById('uf-status').value;
+
   let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
-  const user = users.find(u => String(u.id) === String(userId));
-  if (user) {
-    const newName = prompt("Nhập Tên mới cho người dùng:", user.name);
-    if (newName && newName.trim() !== '') {
-      user.name = newName.trim();
+
+  if (id) {
+    // Edit mode
+    const user = users.find(u => String(u.id) === String(id));
+    if (user) {
+      user.name = name;
+      user.role = role;
+      user.status = status;
+      if (password) {
+        user.password = password;
+      }
       localStorage.setItem('tagki_registered_users', JSON.stringify(users));
-      renderAdminUsers();
 
       if (typeof dbPost === 'function') {
         dbPost('/users', user);
       }
-      alert("Đã cập nhật thông tin người dùng thành công!");
+      alert("🎉 Cập nhật thông tin thành viên thành công!");
     }
+  } else {
+    // Add mode
+    if (users.some(u => u.email.toLowerCase() === email)) {
+      alert("❌ Email này đã tồn tại trên hệ thống!");
+      return;
+    }
+
+    const newUser = {
+      id: 'u_' + Date.now(),
+      name: name,
+      email: email,
+      auth: 'Standard Email',
+      role: role,
+      status: status,
+      password: password || '123456',
+      date: new Date().toLocaleDateString('vi-VN')
+    };
+
+    users.unshift(newUser);
+    localStorage.setItem('tagki_registered_users', JSON.stringify(users));
+
+    if (typeof dbPost === 'function') {
+      dbPost('/users', newUser);
+    }
+    alert("🎉 Thêm thành viên mới thành công!");
   }
+
+  closeUserFormModal();
+  renderAdminUsers();
 }
 
 function deleteUser(userId) {
@@ -740,46 +862,6 @@ function deleteUser(userId) {
       dbDelete(`/users/${userId}`);
     }
   }
-}
-
-function openAddUserForm() {
-  const email = prompt("Nhập Email người dùng mới:");
-  if (!email || !email.includes('@')) {
-    alert("❌ Email không hợp lệ!");
-    return;
-  }
-
-  let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
-  if (users.some(u => u.email.toLowerCase() === email.toLowerCase())) {
-    alert("❌ Email này đã tồn tại trên hệ thống!");
-    return;
-  }
-
-  const name = prompt("Nhập Họ & Tên người dùng:") || email.split('@')[0];
-  const roleSelect = prompt("Nhập vai trò người dùng (Nhập 'customer' hoặc 'admin'):", "customer");
-  const role = (roleSelect && roleSelect.trim().toLowerCase() === 'admin') ? 'admin' : 'customer';
-  const password = prompt("Nhập mật khẩu cho tài khoản mới:", "123456") || "123456";
-
-  const newUser = {
-    id: 'u_' + Date.now(),
-    name: name,
-    email: email.toLowerCase().trim(),
-    auth: 'Standard Email',
-    role: role,
-    status: 'active',
-    password: password,
-    date: new Date().toLocaleDateString('vi-VN')
-  };
-
-  users.unshift(newUser);
-  localStorage.setItem('tagki_registered_users', JSON.stringify(users));
-  renderAdminUsers();
-
-  if (typeof dbPost === 'function') {
-    dbPost('/users', newUser);
-  }
-
-  alert("🎉 Thêm người dùng mới thành công!");
 }
 
 function approveOrder(code) {
