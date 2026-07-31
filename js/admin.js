@@ -23,6 +23,15 @@ let ADMIN_USERS = [
 
 document.addEventListener('DOMContentLoaded', () => {
   checkAdminAuth();
+
+  // Sync main product name to AI input as user types
+  const pfName = document.getElementById('pf-name-vi');
+  if (pfName) {
+    pfName.addEventListener('input', () => {
+      const aiProdName = document.getElementById('ai-product-name');
+      if (aiProdName) aiProdName.value = pfName.value;
+    });
+  }
 });
 
 function checkAdminAuth() {
@@ -68,6 +77,7 @@ function checkAdminAuth() {
     safeCall(renderAdminBanners);
     safeCall(populateFlashSaleDropdown);
     safeCall(populateBrandingInputs);
+    safeCall(populateAICopywriterSettings);
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';
   }
@@ -392,6 +402,19 @@ function openProductModalForm(productId = null) {
       { label: "1 Năm", price: 1990000, originalPrice: 3900000 }
     ]);
   }
+
+  // Update AI Copywriter product name and clear inputs
+  const nameViValue = document.getElementById('pf-name-vi').value;
+  if (document.getElementById('ai-product-name')) {
+    document.getElementById('ai-product-name').value = nameViValue;
+  }
+  if (document.getElementById('ai-features')) {
+    document.getElementById('ai-features').value = '';
+  }
+  if (document.getElementById('ai-preview-box')) {
+    document.getElementById('ai-preview-box').style.display = 'none';
+  }
+  updateAICreditsUI();
 
   modal.style.display = 'flex';
 }
@@ -752,6 +775,7 @@ function openUserFormModal(userId = null) {
   const passwordInput = document.getElementById('uf-password');
   const roleInput = document.getElementById('uf-role');
   const statusInput = document.getElementById('uf-status');
+  const creditsInput = document.getElementById('uf-credits');
   const idInput = document.getElementById('uf-id');
 
   if (!modal) return;
@@ -771,6 +795,9 @@ function openUserFormModal(userId = null) {
     passwordInput.placeholder = "Bỏ trống để giữ nguyên mật khẩu cũ";
     roleInput.value = user.role || "customer";
     statusInput.value = user.status || "active";
+    if (creditsInput) {
+      creditsInput.value = user.ai_credits !== undefined && user.ai_credits !== null ? user.ai_credits : 40;
+    }
   } else {
     // Add mode
     title.textContent = "Thêm Thành Viên Mới";
@@ -782,6 +809,9 @@ function openUserFormModal(userId = null) {
     passwordInput.placeholder = "Nhập mật khẩu cho tài khoản mới";
     roleInput.value = "customer";
     statusInput.value = "active";
+    if (creditsInput) {
+      creditsInput.value = 40;
+    }
   }
 
   modal.style.display = 'flex';
@@ -800,6 +830,7 @@ function handleSaveUserForm(e) {
   const password = document.getElementById('uf-password').value;
   const role = document.getElementById('uf-role').value;
   const status = document.getElementById('uf-status').value;
+  const creditsVal = document.getElementById('uf-credits') ? Number(document.getElementById('uf-credits').value) : 40;
 
   let users = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
 
@@ -810,6 +841,7 @@ function handleSaveUserForm(e) {
       user.name = name;
       user.role = role;
       user.status = status;
+      user.ai_credits = creditsVal;
       if (password) {
         user.password = password;
       }
@@ -835,6 +867,7 @@ function handleSaveUserForm(e) {
       role: role,
       status: status,
       password: password || '123456',
+      ai_credits: creditsVal,
       date: new Date().toLocaleDateString('vi-VN')
     };
 
@@ -1294,4 +1327,204 @@ function deleteBanner(id) {
 
     renderAdminBanners();
   }
+}
+
+// ==========================================
+// 🤖 AI Copywriter 1-Click Operations
+// ==========================================
+function toggleAIModelOptions() {
+  const provider = document.getElementById('cfg-ai-provider').value;
+  const modelInput = document.getElementById('cfg-ai-model');
+  if (provider === 'gemini') {
+    modelInput.value = 'gemini-1.5-flash';
+  } else {
+    modelInput.value = 'gpt-4o-mini';
+  }
+}
+
+function saveAICopywriterSettings(e) {
+  e.preventDefault();
+  const provider = document.getElementById('cfg-ai-provider').value;
+  const apiKey = document.getElementById('cfg-ai-key').value.trim();
+  const model = document.getElementById('cfg-ai-model').value.trim();
+  const systemPrompt = document.getElementById('cfg-ai-prompt').value.trim();
+
+  const config = { provider, apiKey, model, systemPrompt };
+  localStorage.setItem('tagki_ai_copywriter_config', JSON.stringify(config));
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings/ai_copywriter_config', config)
+      .then(() => alert("🎉 Lưu cấu hình AI thành công!"))
+      .catch(err => {
+        console.error(err);
+        alert("❌ Lỗi khi lưu cấu hình lên máy chủ.");
+      });
+  } else {
+    alert("🎉 Lưu cấu hình AI thành công (Chế độ offline)!");
+  }
+}
+
+function populateAICopywriterSettings() {
+  let config = JSON.parse(localStorage.getItem('tagki_ai_copywriter_config'));
+  
+  const defaultPrompt = "Bạn là chuyên gia Copywriter E-commerce. Hãy tạo bài mô tả sản phẩm bằng định dạng HTML chuẩn (chứa <h2>, <h3>, <p>, <ul>, <li>, emoji/icon sinh động) theo công thức AIDA (Attention, Interest, Desire, Action) và tối ưu từ khóa SEO. Đầu ra chỉ trả về mã HTML sạch để chèn trực tiếp vào Editor, không bao gồm codeblock markdown (```html).";
+
+  const applyConfigToUI = (cfg) => {
+    if (document.getElementById('cfg-ai-provider')) document.getElementById('cfg-ai-provider').value = cfg.provider || 'openai';
+    if (document.getElementById('cfg-ai-key')) document.getElementById('cfg-ai-key').value = cfg.apiKey || '';
+    if (document.getElementById('cfg-ai-model')) document.getElementById('cfg-ai-model').value = cfg.model || 'gpt-4o-mini';
+    if (document.getElementById('cfg-ai-prompt')) document.getElementById('cfg-ai-prompt').value = cfg.systemPrompt || defaultPrompt;
+  };
+
+  if (config) {
+    applyConfigToUI(config);
+  } else {
+    if (typeof dbFetch === 'function') {
+      dbFetch('/settings/ai_copywriter_config').then(dbConfig => {
+        if (dbConfig) {
+          localStorage.setItem('tagki_ai_copywriter_config', JSON.stringify(dbConfig));
+          applyConfigToUI(dbConfig);
+        } else {
+          if (document.getElementById('cfg-ai-prompt')) document.getElementById('cfg-ai-prompt').value = defaultPrompt;
+        }
+      }).catch(() => {
+        if (document.getElementById('cfg-ai-prompt')) document.getElementById('cfg-ai-prompt').value = defaultPrompt;
+      });
+    } else {
+      if (document.getElementById('cfg-ai-prompt')) document.getElementById('cfg-ai-prompt').value = defaultPrompt;
+    }
+  }
+}
+
+function updateAICreditsUI() {
+  const adminSession = JSON.parse(localStorage.getItem('tagki_admin_session'));
+  const adminEmail = adminSession ? adminSession.email : 'admin@tagki.vn';
+  const usersList = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+  const currentAdminUser = usersList.find(u => u.email.toLowerCase() === adminEmail.toLowerCase());
+  
+  const credits = currentAdminUser && currentAdminUser.ai_credits !== undefined ? currentAdminUser.ai_credits : 40;
+  
+  const badge = document.getElementById('ai-credits-badge');
+  if (badge) badge.textContent = credits;
+  
+  const btn = document.getElementById('btn-generate-ai');
+  const alertBox = document.getElementById('ai-upsell-alert');
+  
+  if (credits <= 0) {
+    if (btn) {
+      btn.disabled = true;
+      btn.style.opacity = '0.5';
+      btn.style.cursor = 'not-allowed';
+    }
+    if (alertBox) alertBox.style.display = 'block';
+  } else {
+    if (btn) {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+    if (alertBox) alertBox.style.display = 'none';
+  }
+}
+
+let generatedAIHtml = "";
+
+function generateAICopywriter() {
+  const productName = document.getElementById('pf-name-vi').value.trim();
+  const features = document.getElementById('ai-features').value.trim();
+  const tone = document.getElementById('ai-tone').value;
+
+  if (!productName) {
+    alert("❌ Vui lòng nhập Tên sản phẩm chính ở phía trên trước!");
+    return;
+  }
+  if (!features) {
+    alert("❌ Vui lòng nhập vài Ưu điểm / Tính năng nổi bật của sản phẩm!");
+    return;
+  }
+
+  const btn = document.getElementById('btn-generate-ai');
+  const originalBtnHtml = btn.innerHTML;
+  
+  btn.disabled = true;
+  btn.style.opacity = '0.7';
+  btn.innerHTML = `🤖 AI đang viết bài... <span style="display:inline-block; animation: spin 1s linear infinite; margin-left:6px;">⏳</span>`;
+
+  if (!document.getElementById('spin-anim-style')) {
+    const style = document.createElement('style');
+    style.id = 'spin-anim-style';
+    style.innerHTML = `@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`;
+    document.head.appendChild(style);
+  }
+
+  const adminSession = JSON.parse(localStorage.getItem('tagki_admin_session'));
+  const adminEmail = adminSession ? adminSession.email : 'admin@tagki.vn';
+
+  const payload = { productName, features, tone, email: adminEmail };
+
+  fetch('/api/ai-copywriter', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload)
+  })
+    .then(async res => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.innerHTML = originalBtnHtml;
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "API_ERROR");
+      }
+
+      const data = await res.json();
+      if (data.success) {
+        generatedAIHtml = data.content;
+        
+        const previewBox = document.getElementById('ai-preview-box');
+        const previewDiv = document.getElementById('ai-html-preview');
+        
+        if (previewDiv) previewDiv.innerHTML = generatedAIHtml;
+        if (previewBox) previewBox.style.display = 'block';
+
+        let usersList = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
+        const adminUser = usersList.find(u => u.email.toLowerCase() === adminEmail.toLowerCase());
+        if (adminUser) {
+          adminUser.ai_credits = data.remainingCredits;
+          localStorage.setItem('tagki_registered_users', JSON.stringify(usersList));
+          renderAdminUsers();
+        }
+        
+        updateAICreditsUI();
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.innerHTML = originalBtnHtml;
+      
+      console.error(err);
+      if (err.message === 'OUT_OF_CREDITS') {
+        alert("⚠️ Bạn đã sử dụng hết lượt AI miễn phí!");
+        updateAICreditsUI();
+      } else {
+        alert("❌ Hệ thống AI đang bận hoặc thông tin API Key không hợp lệ, vui lòng thử lại sau 5 giây.");
+      }
+    });
+}
+
+function applyAIPost() {
+  if (!generatedAIHtml) return;
+  
+  const descInput = document.getElementById('pf-desc-vi');
+  if (descInput) {
+    descInput.value = generatedAIHtml;
+  }
+  
+  alert("🎉 Đã áp dụng bài viết AI!");
+  
+  const previewBox = document.getElementById('ai-preview-box');
+  if (previewBox) previewBox.style.display = 'none';
 }

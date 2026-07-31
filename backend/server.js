@@ -448,8 +448,12 @@ app.post('/api/auth/google', async (req, res) => {
         full_name VARCHAR(255),
         avatar TEXT,
         role VARCHAR(50) DEFAULT 'customer',
+        ai_credits INTEGER DEFAULT 40,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
+    `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_credits INTEGER DEFAULT 40;
     `);
 
     // Insert or update customer profile
@@ -475,12 +479,16 @@ app.get('/api/users', async (req, res) => {
         avatar TEXT,
         role VARCHAR(50) DEFAULT 'customer',
         status VARCHAR(50) DEFAULT 'active',
+        ai_credits INTEGER DEFAULT 40,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     // Ensure status column exists in case database table was created earlier
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS status VARCHAR(50) DEFAULT 'active';
+    `);
+    await pool.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_credits INTEGER DEFAULT 40;
     `);
     const { rows } = await pool.query('SELECT * FROM users ORDER BY created_at DESC');
     res.json(rows.map(u => ({
@@ -490,6 +498,7 @@ app.get('/api/users', async (req, res) => {
       auth: u.id && u.id.startsWith('g_') ? 'Google (Gmail)' : 'Standard Email',
       role: u.role || 'customer',
       status: u.status || 'active',
+      ai_credits: u.ai_credits !== undefined && u.ai_credits !== null ? u.ai_credits : 40,
       date: new Date(u.created_at).toLocaleDateString('vi-VN')
     })));
   } catch (err) {
@@ -498,18 +507,22 @@ app.get('/api/users', async (req, res) => {
 });
 
 app.post('/api/users', async (req, res) => {
-  const { id, name, email, role, status, password } = req.body;
+  const { id, name, email, role, status, password, ai_credits } = req.body;
   const userId = id || 'u_' + Date.now();
+  const credits = ai_credits !== undefined && ai_credits !== null ? Number(ai_credits) : 40;
   try {
     // Ensure password column exists dynamically
     await pool.query(`
       ALTER TABLE users ADD COLUMN IF NOT EXISTS password VARCHAR(255) DEFAULT '';
     `);
     await pool.query(`
-      INSERT INTO users (id, email, full_name, role, status, password)
-      VALUES ($1, $2, $3, $4, $5, $6)
-      ON CONFLICT (email) DO UPDATE SET full_name = $3, role = $4, status = $5, password = COALESCE(NULLIF($6, ''), users.password)
-    `, [userId, email, name, role || 'customer', status || 'active', password || '']);
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS ai_credits INTEGER DEFAULT 40;
+    `);
+    await pool.query(`
+      INSERT INTO users (id, email, full_name, role, status, password, ai_credits)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      ON CONFLICT (email) DO UPDATE SET full_name = $3, role = $4, status = $5, password = COALESCE(NULLIF($6, ''), users.password), ai_credits = $7
+    `, [userId, email, name, role || 'customer', status || 'active', password || '', credits]);
     res.json({ message: "User saved successfully!" });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -535,6 +548,125 @@ app.delete('/api/users/:id', async (req, res) => {
   }
 });
 
+// 6. AI Copywriter API Route
+app.post('/api/ai-copywriter', async (req, res) => {
+  const { productName, features, tone, email } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ error: "EMAIL_REQUIRED" });
+  }
+
+  try {
+    // 1. Check credits
+    const userRes = await pool.query("SELECT ai_credits FROM users WHERE email = $1", [email]);
+    if (userRes.rows.length === 0) {
+      return res.status(404).json({ error: "USER_NOT_FOUND" });
+    }
+
+    const currentCredits = userRes.rows[0].ai_credits !== null ? Number(userRes.rows[0].ai_credits) : 40;
+    if (currentCredits <= 0) {
+      return res.status(403).json({ error: "OUT_OF_CREDITS" });
+    }
+
+    // 2. Fetch AI configuration
+    const configRes = await pool.query("SELECT value FROM settings WHERE key = $1", ['ai_copywriter_config']);
+    let aiConfig = configRes.rows.length > 0 ? JSON.parse(configRes.rows[0].value) : null;
+
+    if (!aiConfig) {
+      aiConfig = {
+        provider: process.env.GEMINI_API_KEY ? 'gemini' : 'openai',
+        apiKey: process.env.OPENAI_API_KEY || process.env.GEMINI_API_KEY || '',
+        model: process.env.GEMINI_API_KEY ? 'gemini-1.5-flash' : 'gpt-4o-mini',
+        systemPrompt: "Bạn là chuyên gia Copywriter E-commerce. Hãy tạo bài mô tả sản phẩm bằng định dạng HTML chuẩn (chứa <h2>, <h3>, <p>, <ul>, <li>, emoji/icon sinh động) theo công thức AIDA (Attention, Interest, Desire, Action) và tối ưu từ khóa SEO. Đầu ra chỉ trả về mã HTML sạch để chèn trực tiếp vào Editor, không bao gồm codeblock markdown (```html)."
+      };
+    }
+
+    const { provider, apiKey, model, systemPrompt } = aiConfig;
+
+    if (!apiKey) {
+      return res.status(500).json({ error: "API_KEY_MISSING", message: "AI API Key is not configured." });
+    }
+
+    const userPrompt = `Tên sản phẩm: ${productName}\nƯu điểm/Tính năng nổi bật: ${features}\nTông giọng: ${tone || 'Thuyết phục bán hàng'}`;
+    let htmlContent = "";
+
+    function cleanHtmlOutput(text) {
+      if (!text) return "";
+      let cleaned = text.trim();
+      cleaned = cleaned.replace(/^```html\s*/i, '');
+      cleaned = cleaned.replace(/^```\s*/, '');
+      cleaned = cleaned.replace(/\s*```$/, '');
+      return cleaned.trim();
+    }
+
+    // 3. Call AI service
+    if (provider === 'gemini') {
+      const apiResponse = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model || 'gemini-1.5-flash'}:generateContent?key=${apiKey}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: `${systemPrompt}\n\nYêu cầu tạo bài viết cho:\n${userPrompt}` }]
+            }
+          ],
+          generationConfig: { temperature: 0.7 }
+        })
+      });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error?.message || "Gemini API error");
+      }
+
+      const data = await apiResponse.json();
+      htmlContent = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    } else {
+      const apiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
+        },
+        body: JSON.stringify({
+          model: model || 'gpt-4o-mini',
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt }
+          ],
+          temperature: 0.7
+        })
+      });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.error?.message || "OpenAI API error");
+      }
+
+      const data = await apiResponse.json();
+      htmlContent = data.choices?.[0]?.message?.content || "";
+    }
+
+    htmlContent = cleanHtmlOutput(htmlContent);
+
+    // 4. Deduct credit
+    const newCredits = currentCredits - 1;
+    await pool.query("UPDATE users SET ai_credits = $1 WHERE email = $2", [newCredits, email]);
+
+    res.json({
+      success: true,
+      content: htmlContent,
+      remainingCredits: newCredits
+    });
+
+  } catch (error) {
+    console.error("Express AI Copywriter error:", error);
+    res.status(500).json({ error: "API_ERROR", message: error.message });
+  }
+});
 
 app.listen(PORT, () => {
   console.log(`==========================================`);

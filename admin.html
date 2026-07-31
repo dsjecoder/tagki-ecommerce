@@ -400,6 +400,35 @@
           </form>
         </div>
 
+        <!-- Cấu Hình AI Copywriter Settings Block -->
+        <div class="admin-table-box" style="grid-column: 1 / -1; margin-top: 20px;">
+          <h3 style="color: #3a86ff; margin-bottom: 16px;">🤖 Cấu Hình Trợ Lý AI Copywriter</h3>
+          <form onsubmit="saveAICopywriterSettings(event)">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 16px;">
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Nhà cung cấp (AI Provider)</label>
+                <select id="cfg-ai-provider" onchange="toggleAIModelOptions()" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px; height: 42px;">
+                  <option value="openai">OpenAI (ChatGPT)</option>
+                  <option value="gemini">Google Gemini</option>
+                </select>
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">API Key</label>
+                <input type="password" id="cfg-ai-key" class="tool-input" placeholder="Nhập API Key của bạn..." style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              </div>
+              <div>
+                <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Model Name</label>
+                <input type="text" id="cfg-ai-model" class="tool-input" value="gpt-4o-mini" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              </div>
+            </div>
+            <div style="margin-bottom: 16px;">
+              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">System Prompt (Cực kỳ quan trọng để định hình bài viết)</label>
+              <textarea id="cfg-ai-prompt" rows="4" style="background: #1c2541; color: white; border: 1px solid #2b365a; padding: 10px; width: 100%; border-radius: 6px; font-size: 0.85rem; line-height: 1.4;"></textarea>
+            </div>
+            <button type="submit" class="admin-btn" style="background: #3a86ff; color: white; padding: 10px 24px;">Lưu Cấu Hình AI</button>
+          </form>
+        </div>
+
         <!-- Sliders Management Block -->
         <div class="admin-table-box" style="grid-column: 1 / -1; margin-top: 20px;">
           <h3 style="color: #3b82f6; margin-bottom: 16px;">🖼️ Quản Lý Sliders / Banners Trang Chủ</h3>
@@ -564,6 +593,64 @@
             <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">URL Hình Ảnh Thumbnail *</label>
             <input type="text" id="pf-image" required placeholder="https://images.unsplash.com/..." style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
           </div>
+          <!-- ✨ AI Copywriter Widget (AIDA & SEO) -->
+          <div style="grid-column: 1/-1; background: linear-gradient(145deg, #161e38, #1c2541); border: 1px solid #3a86ff; border-radius: 12px; padding: 18px; margin: 10px 0; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.15);">
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2b365a; padding-bottom: 10px; margin-bottom: 12px;">
+              <h4 style="margin: 0; color: #3a86ff; display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.95rem;">
+                <span>✨</span> Trợ lý AI Copywriter (Tagki AI)
+              </h4>
+              <span style="font-size: 0.78rem; font-weight: 700; background: rgba(58, 134, 255, 0.2); color: #3a86ff; padding: 4px 10px; border-radius: 9999px;" id="ai-credits-container">
+                Số lượt còn lại: <span id="ai-credits-badge">40</span>/40
+              </span>
+            </div>
+
+            <!-- Form parameters inside widget -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+              <div style="grid-column: 1 / -1;">
+                <label style="font-size: 0.76rem; font-weight: 700; color: #8d99ae; display: block; margin-bottom: 4px;">Tên sản phẩm (Tự động điền)</label>
+                <input type="text" id="ai-product-name" readonly style="width: 100%; background: #0b132b; color: #8d99ae; border: 1px solid #2b365a; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem;" placeholder="Nhập tên sản phẩm ở trên...">
+              </div>
+              <div>
+                <label style="font-size: 0.76rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Ưu điểm / Tính năng nổi bật *</label>
+                <textarea id="ai-features" rows="2" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 8px 12px; border-radius: 6px; font-size: 0.85rem; resize: none;" placeholder="Ví dụ: Tự động gia hạn, bảo hành 12 tháng, giao nhanh trong 5 phút..."></textarea>
+              </div>
+              <div>
+                <label style="font-size: 0.76rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Tông giọng (Tone)</label>
+                <select id="ai-tone" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 8px; border-radius: 6px; font-size: 0.85rem; height: 38px;">
+                  <option value="Thuyết phục bán hàng">🔥 Thuyết phục bán hàng [Mặc định]</option>
+                  <option value="Chuyên nghiệp">⭐ Chuyên nghiệp</option>
+                  <option value="Khuyến mãi">🎁 Khuyến mãi, kích cầu</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Action Button -->
+            <button type="button" id="btn-generate-ai" onclick="generateAICopywriter()" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #3a86ff, #00b4d8); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; font-size: 0.88rem; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.2s;">
+              🚀 Tạo bài viết chuẩn AIDA & SEO
+            </button>
+
+            <!-- Alert Gói VIP/Nạp Credit khi hết lượt -->
+            <div id="ai-upsell-alert" style="display: none; background: rgba(245, 158, 11, 0.15); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px; margin-top: 12px; text-align: left;">
+              <span style="color: #f59e0b; font-weight: 700; font-size: 0.85rem; display: block; margin-bottom: 4px;">⚠️ Bạn đã sử dụng hết lượt AI miễn phí!</span>
+              <span style="font-size: 0.78rem; color: #edf2f4;">Vui lòng liên hệ Admin để nâng cấp gói VIP hoặc nạp thêm Credit để tiếp tục.</span>
+            </div>
+
+            <!-- Preview Box and Action Box -->
+            <div id="ai-preview-box" style="display: none; margin-top: 14px; border-top: 1px dashed #2b365a; padding-top: 12px;">
+              <label style="font-size: 0.78rem; font-weight: 700; color: #10b981; display: block; margin-bottom: 6px;">📝 Xem trước bài viết (Định dạng HTML):</label>
+              <div id="ai-html-preview" style="background: #0b132b; border: 1px solid #2b365a; padding: 12px; border-radius: 8px; font-size: 0.82rem; color: #edf2f4; max-height: 180px; overflow-y: auto; text-align: left; line-height: 1.5; margin-bottom: 12px;"></div>
+
+              <div style="display: flex; gap: 8px;">
+                <button type="button" onclick="applyAIPost()" style="flex: 1; padding: 8px; background: #10b981; color: white; border: none; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+                  ✅ Dùng bài viết này
+                </button>
+                <button type="button" onclick="generateAICopywriter()" style="padding: 8px 16px; background: #2b365a; color: white; border: 1px solid #3a86ff; border-radius: 6px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">
+                  🔄 Tạo bản khác
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div style="grid-column: 1/-1;">
             <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Mô Tả Sản Phẩm (Tiếng Việt)</label>
             <textarea id="pf-desc-vi" rows="3" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;"></textarea>
@@ -733,7 +820,7 @@
           <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Mật Khẩu (Đăng nhập Email)</label>
           <input type="password" id="uf-password" placeholder="Nhập mật khẩu mới hoặc bỏ trống để giữ nguyên" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
         </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 14px; margin-bottom: 20px;">
           <div>
             <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Vai Trò</label>
             <select id="uf-role" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
@@ -747,6 +834,10 @@
               <option value="active">🟢 Hoạt động</option>
               <option value="inactive">🔴 Bị Khóa</option>
             </select>
+          </div>
+          <div>
+            <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">AI Credits</label>
+            <input type="number" id="uf-credits" value="40" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
           </div>
         </div>
         
