@@ -1475,11 +1475,20 @@ function generateAICopywriter() {
       btn.innerHTML = originalBtnHtml;
 
       if (!res.ok) {
-        let errMsg = "API_ERROR";
-        try {
-          const errorData = await res.json();
-          errMsg = errorData.message || errorData.error || errMsg;
-        } catch (e) {}
+        let errMsg = `API_ERROR (${res.status})`;
+        if (res.status === 404) {
+          errMsg = "404 Not Found (Server online chưa được cập nhật API này. Hãy push code mới lên Github/Render và đợi Render triển khai xong!)";
+        } else {
+          try {
+            const errorData = await res.json();
+            errMsg = errorData.message || errorData.error || errMsg;
+          } catch (e) {
+            try {
+              const txt = await res.text();
+              if (txt && txt.length < 150) errMsg = txt;
+            } catch (ex) {}
+          }
+        }
         throw new Error(errMsg);
       }
 
