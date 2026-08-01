@@ -126,6 +126,22 @@ initDb();
 
 // --- API ENDPOINTS ---
 
+// 0. Healthcheck & Debug APIs
+app.get('/api/health', (req, res) => {
+  const routes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) {
+      routes.push(`${Object.keys(middleware.route.methods).join(', ').toUpperCase()} ${middleware.route.path}`);
+    }
+  });
+  res.json({
+    status: "UP",
+    timestamp: new Date(),
+    version: "1.0.4",
+    routes: routes
+  });
+});
+
 // 1. Categories APIs
 app.get('/api/categories', async (req, res) => {
   try {
