@@ -1501,12 +1501,29 @@ function generateAICopywriter() {
 
       const data = await res.json();
       if (data.success) {
-        generatedAIHtml = data.content;
+        generatedAIHtml = data.content; // Object containing name_en, description_vi, description_en
         
         const previewBox = document.getElementById('ai-preview-box');
         const previewDiv = document.getElementById('ai-html-preview');
         
-        if (previewDiv) previewDiv.innerHTML = generatedAIHtml;
+        if (previewDiv && generatedAIHtml) {
+          previewDiv.innerHTML = `
+            <div style="margin-bottom: 15px; border-bottom: 1px solid #475569; padding-bottom: 10px;">
+              <strong style="color: #60a5fa;">Tên tiếng Anh đề xuất:</strong>
+              <div style="margin-top: 5px; color: white; font-weight: bold; background: #0f172a; padding: 8px; border-radius: 6px; font-size: 0.9rem;">${generatedAIHtml.name_en}</div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+              <div>
+                <strong style="color: #34d399; display: block; margin-bottom: 6px;">Mô tả Tiếng Việt:</strong>
+                <div style="font-size: 0.82rem; max-height: 220px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 6px; color: #cbd5e1; line-height: 1.5;">${generatedAIHtml.description_vi}</div>
+              </div>
+              <div>
+                <strong style="color: #fb7185; display: block; margin-bottom: 6px;">Mô tả Tiếng Anh:</strong>
+                <div style="font-size: 0.82rem; max-height: 220px; overflow-y: auto; background: #0f172a; padding: 10px; border-radius: 6px; color: #cbd5e1; line-height: 1.5;">${generatedAIHtml.description_en}</div>
+              </div>
+            </div>
+          `;
+        }
         if (previewBox) previewBox.style.display = 'block';
 
         let usersList = JSON.parse(localStorage.getItem('tagki_registered_users')) || [];
@@ -1536,14 +1553,24 @@ function generateAICopywriter() {
 }
 
 function applyAIPost() {
-  if (!generatedAIHtml) return;
+  if (!generatedAIHtml || typeof generatedAIHtml !== 'object') return;
   
-  const descInput = document.getElementById('pf-desc-vi');
-  if (descInput) {
-    descInput.value = generatedAIHtml;
+  const nameEnInput = document.getElementById('pf-name-en');
+  if (nameEnInput && generatedAIHtml.name_en) {
+    nameEnInput.value = generatedAIHtml.name_en;
+  }
+
+  const descViInput = document.getElementById('pf-desc-vi');
+  if (descViInput && generatedAIHtml.description_vi) {
+    descViInput.value = generatedAIHtml.description_vi;
+  }
+
+  const descEnInput = document.getElementById('pf-desc-en');
+  if (descEnInput && generatedAIHtml.description_en) {
+    descEnInput.value = generatedAIHtml.description_en;
   }
   
-  alert("🎉 Đã áp dụng bài viết AI!");
+  alert("🎉 Đã tự động áp dụng tên tiếng Anh và mô tả cả 2 ngôn ngữ thành công!");
   
   const previewBox = document.getElementById('ai-preview-box');
   if (previewBox) previewBox.style.display = 'none';
