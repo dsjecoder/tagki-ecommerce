@@ -1475,8 +1475,12 @@ function generateAICopywriter() {
       btn.innerHTML = originalBtnHtml;
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "API_ERROR");
+        let errMsg = "API_ERROR";
+        try {
+          const errorData = await res.json();
+          errMsg = errorData.message || errorData.error || errMsg;
+        } catch (e) {}
+        throw new Error(errMsg);
       }
 
       const data = await res.json();
@@ -1510,7 +1514,7 @@ function generateAICopywriter() {
         alert("⚠️ Bạn đã sử dụng hết lượt AI miễn phí!");
         updateAICreditsUI();
       } else {
-        alert("❌ Hệ thống AI đang bận hoặc thông tin API Key không hợp lệ, vui lòng thử lại sau 5 giây.");
+        alert("❌ Lỗi trợ lý AI: " + err.message);
       }
     });
 }

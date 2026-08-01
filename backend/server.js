@@ -622,8 +622,16 @@ app.post('/api/ai-copywriter', async (req, res) => {
       });
 
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json();
-        throw new Error(errorData.error?.message || "Gemini API error");
+        let errMsg = "Gemini API error";
+        try {
+          const errorData = await apiResponse.json();
+          errMsg = errorData.error?.message || JSON.stringify(errorData) || errMsg;
+        } catch (e) {
+          try {
+            errMsg = await apiResponse.text() || errMsg;
+          } catch (e2) {}
+        }
+        throw new Error(`${apiResponse.status}: ${errMsg}`);
       }
 
       const data = await apiResponse.json();
@@ -646,8 +654,16 @@ app.post('/api/ai-copywriter', async (req, res) => {
       });
 
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json();
-        throw new Error(errorData.error?.message || "OpenAI API error");
+        let errMsg = "OpenAI API error";
+        try {
+          const errorData = await apiResponse.json();
+          errMsg = errorData.error?.message || JSON.stringify(errorData) || errMsg;
+        } catch (e) {
+          try {
+            errMsg = await apiResponse.text() || errMsg;
+          } catch (e2) {}
+        }
+        throw new Error(`${apiResponse.status}: ${errMsg}`);
       }
 
       const data = await apiResponse.json();
