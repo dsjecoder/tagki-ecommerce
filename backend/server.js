@@ -468,6 +468,8 @@ app.post('/api/auth/google', async (req, res) => {
     console.error("Google Auth verification failed:", error);
     res.status(401).json({ success: false, message: error.message });
   }
+});
+
 // 5.1. Registered Users Management APIs
 app.get('/api/users', async (req, res) => {
   try {
