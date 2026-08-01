@@ -1462,7 +1462,7 @@ function generateAICopywriter() {
 
   const payload = { productName, features, tone, email: adminEmail };
 
-  fetch('/api/ai-copywriter', {
+  fetch(`${BACKEND_API_URL}/ai-copywriter`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

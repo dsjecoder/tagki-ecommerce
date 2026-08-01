@@ -36,7 +36,11 @@ export async function POST(request: Request) {
 
     // 2. Fetch AI configurations from database
     const configRes = await pool.query("SELECT value FROM settings WHERE key = $1", ['ai_copywriter_config']);
-    let aiConfig = configRes.rows.length > 0 ? JSON.parse(configRes.rows[0].value) : null;
+    let aiConfig = null;
+    if (configRes.rows.length > 0) {
+      const rawVal = configRes.rows[0].value;
+      aiConfig = typeof rawVal === 'string' ? JSON.parse(rawVal) : rawVal;
+    }
 
     if (!aiConfig) {
       // Fallback defaults
