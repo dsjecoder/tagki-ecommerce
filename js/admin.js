@@ -378,6 +378,9 @@ function openProductModalForm(productId = null) {
     document.getElementById('pf-original-price').value = p.originalPrice || '';
     document.getElementById('pf-image').value = p.image;
     document.getElementById('pf-desc-vi').value = p.description || '';
+    if (document.getElementById('pf-desc-en')) {
+      document.getElementById('pf-desc-en').value = p.description_en || p.description || '';
+    }
     document.getElementById('pf-is-featured').checked = !!p.isFeatured;
 
     // Load existing variants
@@ -392,6 +395,9 @@ function openProductModalForm(productId = null) {
     document.getElementById('pf-original-price').value = '';
     document.getElementById('pf-image').value = '';
     document.getElementById('pf-desc-vi').value = '';
+    if (document.getElementById('pf-desc-en')) {
+      document.getElementById('pf-desc-en').value = '';
+    }
     document.getElementById('pf-is-featured').checked = false;
 
     // Default variants list
@@ -434,6 +440,7 @@ function handleSaveProductForm(event) {
   const origPriceVnd = Number(document.getElementById('pf-original-price').value);
   const image = document.getElementById('pf-image').value;
   const descVi = document.getElementById('pf-desc-vi').value;
+  const descEn = document.getElementById('pf-desc-en') ? document.getElementById('pf-desc-en').value : descVi;
   const isFeatured = document.getElementById('pf-is-featured').checked;
 
   // Serialize variants from form UI
@@ -458,7 +465,7 @@ function handleSaveProductForm(event) {
       STORE_DATA.products[prodIndex].originalPrice = origPriceVnd || priceVnd * 1.5;
       STORE_DATA.products[prodIndex].image = image;
       STORE_DATA.products[prodIndex].description = descVi;
-      STORE_DATA.products[prodIndex].description_en = descVi;
+      STORE_DATA.products[prodIndex].description_en = descEn || descVi;
       STORE_DATA.products[prodIndex].isFeatured = isFeatured;
       STORE_DATA.products[prodIndex].variants = variants;
 
@@ -481,7 +488,7 @@ function handleSaveProductForm(event) {
       rating: 5.0,
       sold: 1,
       description: descVi || "Sản phẩm mới thêm vào kho.",
-      description_en: descVi || "New product added.",
+      description_en: descEn || descVi || "New product added.",
       features: ["Bản quyền chính hãng", "Bảo hành 1 đổi 1"],
       variants: variants,
       isFeatured: isFeatured

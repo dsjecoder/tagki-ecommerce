@@ -59,7 +59,12 @@ function renderProducts(query = '') {
 
   if (query.trim() !== '') {
     const q = query.toLowerCase();
-    filtered = filtered.filter(p => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(q) || 
+      (p.name_en && p.name_en.toLowerCase().includes(q)) ||
+      p.description.toLowerCase().includes(q) ||
+      (p.description_en && p.description_en.toLowerCase().includes(q))
+    );
   }
 
   if (filtered.length === 0) {
@@ -255,7 +260,10 @@ function initSearch() {
       return;
     }
 
-    const matches = STORE_DATA.products.filter(p => p.name.toLowerCase().includes(val)).slice(0, 5);
+    const matches = STORE_DATA.products.filter(p => 
+      p.name.toLowerCase().includes(val) || 
+      (p.name_en && p.name_en.toLowerCase().includes(val))
+    ).slice(0, 5);
 
     if (matches.length > 0) {
       resultsBox.innerHTML = matches.map(p => {
@@ -354,7 +362,7 @@ function openProductModal(productId) {
       <div>
         <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${productName}</h2>
         <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">${t('rating')}: ★ ${product.rating} (${t('sold')} ${product.sold})</div>
-        <p style="font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4;">${product.description}</p>
+        <p style="font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4;">${currentLang === 'en' && product.description_en ? product.description_en : product.description}</p>
         
         <div style="margin-bottom: 16px;">
           <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 8px;">${currentLang === 'en' ? 'Select Plan Duration:' : 'Chọn gói thời hạn:'}</label>
