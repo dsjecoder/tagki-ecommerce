@@ -292,18 +292,18 @@
           <h3 style="color: #3b82f6;">🏛️ Cấu Hình VietQR Ngân Hàng</h3>
           <form onsubmit="saveBankingSettings(event)">
             <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Ngân hàng</label>
-              <input type="text" id="cfg-bank-name" class="tool-input" value="MB Bank" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Ngân hàng *</label>
+              <input type="text" id="cfg-bank-name" required class="tool-input" placeholder="Ví dụ: MB Bank, Vietcombank, Techcombank" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
             <div style="margin-bottom: 12px;">
-              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Số tài khoản (STK)</label>
-              <input type="text" id="cfg-account-number" class="tool-input" value="0839888823" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Số tài khoản (STK) *</label>
+              <input type="text" id="cfg-account-number" required class="tool-input" placeholder="Ví dụ: 0839888823" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
             <div style="margin-bottom: 16px;">
-              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Tên chủ tài khoản</label>
-              <input type="text" id="cfg-account-holder" class="tool-input" value="TAGKI DIGITAL" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Tên chủ tài khoản *</label>
+              <input type="text" id="cfg-account-holder" required class="tool-input" placeholder="Ví dụ: NGUYEN VAN A hoặc TAGKI DIGITAL" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
-            <button type="submit" class="admin-btn admin-btn-success">Lưu VietQR</button>
+            <button type="submit" class="admin-btn admin-btn-success">Lưu Cấu Hình VietQR</button>
           </form>
         </div>
 
@@ -312,13 +312,13 @@
           <form onsubmit="saveOxaPaySettings(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">OxaPay Merchant API Key</label>
-              <input type="text" id="cfg-oxapay-key" class="tool-input" value="OXAPAY_KEY_8839888823" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <input type="text" id="cfg-oxapay-key" class="tool-input" placeholder="Nhập API Key OxaPay..." style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
             <div style="margin-bottom: 16px;">
               <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Địa chỉ ví USDT TRC20</label>
-              <input type="text" id="cfg-oxapay-wallet" class="tool-input" value="TY4hP8...TagkiOxaPayWallet" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <input type="text" id="cfg-oxapay-wallet" class="tool-input" placeholder="Ví dụ: TY4hP8...Địa chỉ ví USDT TRC20" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
-            <button type="submit" class="admin-btn admin-btn-success">Lưu OxaPay</button>
+            <button type="submit" class="admin-btn admin-btn-success">Lưu Cấu Hình OxaPay</button>
           </form>
         </div>
 
@@ -327,13 +327,13 @@
           <form onsubmit="saveBinanceSettings(event)">
             <div style="margin-bottom: 12px;">
               <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Binance Pay ID</label>
-              <input type="text" id="cfg-binance-id" class="tool-input" value="8839888823" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <input type="text" id="cfg-binance-id" class="tool-input" placeholder="Ví dụ: 8839888823" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
             <div style="margin-bottom: 16px;">
               <label style="display: block; font-size: 0.84rem; margin-bottom: 4px;">Binance Merchant Key</label>
-              <input type="text" id="cfg-binance-key" class="tool-input" value="BINANCE_MERCHANT_KEY_TAGKI" style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
+              <input type="text" id="cfg-binance-key" class="tool-input" placeholder="Nhập Binance Merchant Key..." style="background: #1c2541; color: white; border-color: #2b365a; padding: 10px; width: 100%; border-radius: 6px;">
             </div>
-            <button type="submit" class="admin-btn admin-btn-success">Lưu Binance Pay</button>
+            <button type="submit" class="admin-btn admin-btn-success">Lưu Cấu Hình Binance Pay</button>
           </form>
         </div>
 

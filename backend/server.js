@@ -392,7 +392,7 @@ app.delete('/api/blogs/:id', async (req, res) => {
   }
 });
 
-// 4. Branding Settings APIs
+// 4. System & Payment Settings APIs
 app.get('/api/settings', async (req, res) => {
   try {
     const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'branding'");
@@ -408,11 +408,14 @@ app.get('/api/settings', async (req, res) => {
 
 app.post('/api/settings', async (req, res) => {
   try {
+    const { rows } = await pool.query("SELECT value FROM settings WHERE key = 'branding'");
+    const current = (rows.length > 0 && rows[0].value) ? rows[0].value : {};
+    const merged = { ...current, ...req.body };
     await pool.query(
       "INSERT INTO settings (key, value) VALUES ('branding', $1) ON CONFLICT (key) DO UPDATE SET value = $1",
-      [JSON.stringify(req.body)]
+      [JSON.stringify(merged)]
     );
-    res.json({ message: "Settings saved successfully!" });
+    res.json({ message: "Settings saved successfully!", settings: merged });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

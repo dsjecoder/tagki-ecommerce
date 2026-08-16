@@ -692,15 +692,31 @@ const DEFAULT_FLASH_SALE = {
   ]
 };
 
-// Default Branding / Layout Configs (Fully configurable in Admin panel)
+// Default Branding & Payment Settings (Fully configurable in Admin panel)
 const DEFAULT_SETTINGS = {
+  // Branding & Social
   logoText: "TAGKI",
+  logoImage: "",
   hotline: "+84 908687510",
   facebook: "https://www.facebook.com/tagki686868",
   telegram: "https://t.me/tagki6868",
   whatsapp: "https://wa.me/84839888823",
   twitter: "https://x.com/tagki6868",
-  zalo: "https://zalo.me/0839888823"
+  zalo: "https://zalo.me/0839888823",
+
+  // Payment: VietQR Banking
+  bankName: "MB Bank",
+  accountNumber: "0839888823",
+  accountHolder: "TAGKI DIGITAL SERVICES",
+  qrTemplate: "compact2",
+
+  // Payment: OxaPay Crypto
+  oxapayKey: "OXAPAY_KEY_8839888823",
+  oxapayWallet: "TY4hP8...TagkiOxaPayWallet",
+
+  // Payment: Binance Pay
+  binanceId: "8839888823",
+  binanceKey: "BINANCE_MERCHANT_KEY_TAGKI"
 };
 
 function getStoredProducts() {
@@ -758,17 +774,23 @@ function getStoredSettings() {
   const localSettings = localStorage.getItem('tagki_settings');
   if (localSettings) {
     try {
-      return JSON.parse(localSettings);
+      const parsed = JSON.parse(localSettings);
+      return { ...DEFAULT_SETTINGS, ...parsed };
     } catch (e) {
       console.error(e);
     }
   }
-  return DEFAULT_SETTINGS;
+  return { ...DEFAULT_SETTINGS };
 }
 
 function saveStoredSettings(settingsData) {
-  localStorage.setItem('tagki_settings', JSON.stringify(settingsData));
-  STORE_DATA.settings = settingsData;
+  const current = getStoredSettings();
+  const merged = { ...current, ...settingsData };
+  localStorage.setItem('tagki_settings', JSON.stringify(merged));
+  if (typeof STORE_DATA !== 'undefined') {
+    STORE_DATA.settings = merged;
+  }
+  return merged;
 }
 
 const DEFAULT_BANNERS = [

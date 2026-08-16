@@ -382,26 +382,37 @@ function switchGatewayTab(tab) {
   const amountUsd = currentCheckoutTotalUsd;
   const isEn = (currentLang === 'en');
 
+  // Dynamically load settings from getStoredSettings() or STORE_DATA
+  const settings = (typeof getStoredSettings === 'function') ? getStoredSettings() : (STORE_DATA.settings || {});
+  const bankName = settings.bankName || 'MB Bank';
+  const accountNumber = settings.accountNumber || '0839888823';
+  const accountHolder = settings.accountHolder || 'TAGKI DIGITAL SERVICES';
+  const oxapayWallet = settings.oxapayWallet || 'TY4hP8...TagkiOxaPayWallet';
+  const binanceId = settings.binanceId || '8839888823';
+
   if (tab === 'vietqr') {
+    const vietQrUrl = `https://img.vietqr.io/image/${encodeURIComponent(bankName)}-${encodeURIComponent(accountNumber)}-compact2.png?amount=${amountVnd}&addInfo=${encodeURIComponent(orderCode)}&accountName=${encodeURIComponent(accountHolder)}`;
+    const fallbackQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAGKI_VIETQR_${accountNumber}_${orderCode}_${amountVnd}`;
+
     box.innerHTML = `
       <div style="background: white; border: 2px solid #2579f2; border-radius: 12px; padding: 14px; box-shadow: 0 4px 12px rgba(37,121,242,0.06); text-align: left;">
         <div style="font-size: 0.82rem; font-weight: 800; color: #2579f2; margin-bottom: 10px; text-align: center; text-transform: uppercase;">
           ${isEn ? "SCAN VIETQR CODE (VND)" : "QUÉT MÃ QR VIETQR (VND)"}
         </div>
         <div style="display:flex; justify-content:center; margin-bottom:10px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=TAGKI_VIETQR_${orderCode}_${amountVnd}" alt="VietQR Code" style="width: 130px; height: 130px; border-radius: 6px;">
+          <img src="${vietQrUrl}" onerror="this.onerror=null; this.src='${fallbackQrUrl}'" alt="VietQR Code" style="width: 140px; height: 140px; border-radius: 6px; object-fit: contain;">
         </div>
         <div style="font-size: 0.8rem; color: #334155; margin-bottom:4px;">
-          ${isEn ? "Bank:" : "Ngân hàng:"} <b>MB Bank</b>
+          ${isEn ? "Bank:" : "Ngân hàng:"} <b>${bankName}</b>
         </div>
         <div style="font-size: 0.8rem; color: #334155; margin-bottom:4px;">
-          ${isEn ? "Account No:" : "STK:"} <b style="color:#2579f2;">0839888823</b>
+          ${isEn ? "Account No:" : "STK:"} <b style="color:#2579f2; user-select: all;">${accountNumber}</b>
         </div>
         <div style="font-size: 0.8rem; color: #334155; margin-bottom:4px;">
-          ${isEn ? "Account Name:" : "Chủ tài khoản:"} <b>TAGKI DIGITAL SERVICES</b>
+          ${isEn ? "Account Name:" : "Chủ tài khoản:"} <b>${accountHolder}</b>
         </div>
         <div style="font-size: 0.82rem; color: #e11d48; font-weight: 800; margin-top: 8px; border-top: 1px dashed #e2e8f0; padding-top: 8px; text-align:center;">
-          ${isEn ? "Transfer Reference:" : "Nội dung chuyển khoản:"} <span style="background:#ffe4e6; padding: 2px 6px; border-radius:4px; font-family:monospace; font-size:0.9rem;">${orderCode}</span>
+          ${isEn ? "Transfer Reference:" : "Nội dung chuyển khoản:"} <span style="background:#ffe4e6; padding: 2px 6px; border-radius:4px; font-family:monospace; font-size:0.9rem; user-select: all;">${orderCode}</span>
         </div>
       </div>
     `;
@@ -423,7 +434,7 @@ function switchGatewayTab(tab) {
           </div>
           <div style="font-size: 0.72rem; color: #475569; word-break: break-all; margin-top: 6px; border-top: 1px dashed #e2e8f0; padding-top: 6px;">
             ${isEn ? "Recipient Wallet Address:" : "Địa chỉ ví nhận:"}<br>
-            <span style="font-family:monospace; font-weight:700; color:#0f172a; font-size:0.72rem;">TY4hP8...TagkiOxaPayWallet</span>
+            <span style="font-family:monospace; font-weight:700; color:#0f172a; font-size:0.72rem; user-select: all;">${oxapayWallet}</span>
           </div>
           <div style="margin-top: 10px; background: #faf5ff; border: 1px solid #e9d5ff; border-radius: 8px; padding: 8px; text-align: center;">
             <span style="font-size: 0.76rem; font-weight: 700; color: #8b5cf6; animation: pulse 1s infinite; display: block;">
@@ -457,9 +468,9 @@ function switchGatewayTab(tab) {
           ${isEn ? "No gas fees - Scan QR code using Binance App" : "Không mất phí gas - Thanh toán quét mã bằng Binance App"}
         </div>
         <div style="display:flex; justify-content:center; margin-bottom:10px;">
-          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BINANCE_PAY_TAGKI_${orderCode}_${amountUsd}" alt="Binance Pay QR" style="width: 120px; height: 120px; border-radius: 6px;">
+          <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=BINANCE_PAY_${binanceId}_${orderCode}_${amountUsd}" alt="Binance Pay QR" style="width: 120px; height: 120px; border-radius: 6px;">
         </div>
-        <div style="font-size: 0.8rem; color: #334155; margin-bottom:4px;">Binance Pay ID: <b style="color:#d97706;">8839888823</b></div>
+        <div style="font-size: 0.8rem; color: #334155; margin-bottom:4px;">Binance Pay ID: <b style="color:#d97706; user-select: all;">${binanceId}</b></div>
         <div style="font-size: 0.8rem; color: #334155;">
           ${isEn ? "Payment Amount:" : "Số tiền thanh toán:"} <b style="color:#d97706; font-size:0.9rem;">$${amountUsd} USDT / BUSD</b>
         </div>

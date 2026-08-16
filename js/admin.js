@@ -80,7 +80,7 @@ function checkAdminAuth() {
     safeCall(renderAdminBlogs);
     safeCall(renderAdminBanners);
     safeCall(populateFlashSaleDropdown);
-    safeCall(populateBrandingInputs);
+    safeCall(populateAllSettingsInputs);
     safeCall(populateAICopywriterSettings);
   } else {
     if (loginScreen) loginScreen.style.display = 'flex';
@@ -194,7 +194,10 @@ function switchAdminTab(tabName) {
     titleEl.textContent = 'Quản lý Bài viết Blog';
     renderAdminBlogs();
   }
-  if (tabName === 'settings') titleEl.textContent = 'Cấu hình Thanh toán';
+  if (tabName === 'settings') {
+    titleEl.textContent = 'Cấu hình Thanh toán & Thương hiệu';
+    populateAllSettingsInputs();
+  }
 }
 
 function renderAdminOrders() {
@@ -1195,23 +1198,23 @@ function deleteBlog(id) {
   }
 }
 
-function saveBankingSettings(e) {
-  e.preventDefault();
-  alert("✓ Đã lưu cấu hình tài khoản ngân hàng VietQR thành công!");
-}
+function populateAllSettingsInputs() {
+  const s = (typeof getStoredSettings === 'function') ? getStoredSettings() : (STORE_DATA.settings || {});
+  
+  // Banking VietQR
+  if (document.getElementById('cfg-bank-name')) document.getElementById('cfg-bank-name').value = s.bankName || 'MB Bank';
+  if (document.getElementById('cfg-account-number')) document.getElementById('cfg-account-number').value = s.accountNumber || '0839888823';
+  if (document.getElementById('cfg-account-holder')) document.getElementById('cfg-account-holder').value = s.accountHolder || 'TAGKI DIGITAL SERVICES';
 
-function saveOxaPaySettings(e) {
-  e.preventDefault();
-  alert("✓ Đã lưu cấu hình Cổng thanh toán OxaPay Crypto thành công!");
-}
+  // OxaPay Crypto
+  if (document.getElementById('cfg-oxapay-key')) document.getElementById('cfg-oxapay-key').value = s.oxapayKey || '';
+  if (document.getElementById('cfg-oxapay-wallet')) document.getElementById('cfg-oxapay-wallet').value = s.oxapayWallet || '';
 
-function saveBinanceSettings(e) {
-  e.preventDefault();
-  alert("✓ Đã lưu cấu hình Cổng thanh toán Binance Pay ID thành công!");
-}
+  // Binance Pay
+  if (document.getElementById('cfg-binance-id')) document.getElementById('cfg-binance-id').value = s.binanceId || '';
+  if (document.getElementById('cfg-binance-key')) document.getElementById('cfg-binance-key').value = s.binanceKey || '';
 
-function populateBrandingInputs() {
-  const s = STORE_DATA.settings || {};
+  // Branding & Social
   if (document.getElementById('cfg-logo-text')) document.getElementById('cfg-logo-text').value = s.logoText || 'TAGKI';
   if (document.getElementById('cfg-logo-image')) document.getElementById('cfg-logo-image').value = s.logoImage || '';
   if (document.getElementById('cfg-hotline')) document.getElementById('cfg-hotline').value = s.hotline || '';
@@ -1222,19 +1225,77 @@ function populateBrandingInputs() {
   if (document.getElementById('cfg-zalo')) document.getElementById('cfg-zalo').value = s.zalo || '';
 }
 
+// Alias for backward compatibility
+function populateBrandingInputs() {
+  populateAllSettingsInputs();
+}
+
+function saveBankingSettings(e) {
+  e.preventDefault();
+  const bankName = document.getElementById('cfg-bank-name')?.value.trim() || 'MB Bank';
+  const accountNumber = document.getElementById('cfg-account-number')?.value.trim() || '';
+  const accountHolder = document.getElementById('cfg-account-holder')?.value.trim() || '';
+
+  const updated = saveStoredSettings({
+    bankName,
+    accountNumber,
+    accountHolder
+  });
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings', updated);
+  }
+  alert("✓ Đã lưu cấu hình tài khoản ngân hàng VietQR thành công!");
+}
+
+function saveOxaPaySettings(e) {
+  e.preventDefault();
+  const oxapayKey = document.getElementById('cfg-oxapay-key')?.value.trim() || '';
+  const oxapayWallet = document.getElementById('cfg-oxapay-wallet')?.value.trim() || '';
+
+  const updated = saveStoredSettings({
+    oxapayKey,
+    oxapayWallet
+  });
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings', updated);
+  }
+  alert("✓ Đã lưu cấu hình Cổng thanh toán OxaPay Crypto thành công!");
+}
+
+function saveBinanceSettings(e) {
+  e.preventDefault();
+  const binanceId = document.getElementById('cfg-binance-id')?.value.trim() || '';
+  const binanceKey = document.getElementById('cfg-binance-key')?.value.trim() || '';
+
+  const updated = saveStoredSettings({
+    binanceId,
+    binanceKey
+  });
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings', updated);
+  }
+  alert("✓ Đã lưu cấu hình Cổng thanh toán Binance Pay ID thành công!");
+}
+
 function saveBrandingSettings(e) {
   e.preventDefault();
-  const s = {
-    logoText: document.getElementById('cfg-logo-text').value.trim(),
-    logoImage: document.getElementById('cfg-logo-image').value.trim(),
-    hotline: document.getElementById('cfg-hotline').value.trim(),
-    facebook: document.getElementById('cfg-facebook').value.trim(),
-    telegram: document.getElementById('cfg-telegram').value.trim(),
-    whatsapp: document.getElementById('cfg-whatsapp').value.trim(),
-    twitter: document.getElementById('cfg-twitter').value.trim(),
-    zalo: document.getElementById('cfg-zalo').value.trim()
-  };
-  saveStoredSettings(s);
+  const updated = saveStoredSettings({
+    logoText: document.getElementById('cfg-logo-text')?.value.trim() || 'TAGKI',
+    logoImage: document.getElementById('cfg-logo-image')?.value.trim() || '',
+    hotline: document.getElementById('cfg-hotline')?.value.trim() || '',
+    facebook: document.getElementById('cfg-facebook')?.value.trim() || '',
+    telegram: document.getElementById('cfg-telegram')?.value.trim() || '',
+    whatsapp: document.getElementById('cfg-whatsapp')?.value.trim() || '',
+    twitter: document.getElementById('cfg-twitter')?.value.trim() || '',
+    zalo: document.getElementById('cfg-zalo')?.value.trim() || ''
+  });
+
+  if (typeof dbPost === 'function') {
+    dbPost('/settings', updated);
+  }
   if (typeof applySettingsToUI === 'function') applySettingsToUI();
   alert("✓ Đã lưu cấu hình thương hiệu và các mạng xã hội thành công!");
 }
