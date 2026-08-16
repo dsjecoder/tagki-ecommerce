@@ -8,7 +8,8 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '25mb' }));
+app.use(express.urlencoded({ limit: '25mb', extended: true }));
 
 // Database connection pool setup (supports local PostgreSQL or Supabase PG)
 const pool = new Pool({
@@ -210,6 +211,20 @@ app.delete('/api/products/:id', async (req, res) => {
   try {
     await pool.query('DELETE FROM products WHERE id = $1', [req.params.id]);
     res.json({ message: "Product deleted!" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Image Upload API
+app.post('/api/upload', (req, res) => {
+  try {
+    const { image, name } = req.body;
+    if (!image) {
+      return res.status(400).json({ error: 'No image data provided' });
+    }
+    // Return image payload
+    res.json({ success: true, url: image, name: name || 'uploaded-image' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

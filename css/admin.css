@@ -163,3 +163,79 @@ body.admin-body {
 textarea {
   font-family: inherit;
 }
+
+/* Image Uploader & Manager Styles */
+.img-tab-btn {
+  background: transparent;
+  color: var(--admin-muted);
+  border: none;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.img-tab-btn:hover {
+  color: white;
+}
+
+.img-tab-btn.active {
+  background: var(--admin-primary) !important;
+  color: white !important;
+  box-shadow: 0 2px 6px rgba(58, 134, 255, 0.3);
+}
+
+.admin-dropzone {
+  border: 2px dashed #3a86ff;
+  background: rgba(58, 134, 255, 0.05);
+  border-radius: 10px;
+  padding: 22px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.admin-dropzone:hover,
+.admin-dropzone.dragover {
+  background: rgba(58, 134, 255, 0.15);
+  border-color: #00b4d8;
+  transform: scale(1.005);
+}
+
+.preset-icon-card {
+  background: #0b132b;
+  border: 1px solid #2b365a;
+  border-radius: 8px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.preset-icon-card:hover {
+  border-color: var(--admin-primary);
+  background: #162244;
+  transform: translateY(-2px);
+}
+
+.preset-icon-card img {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.preset-icon-card span {
+  font-size: 0.7rem;
+  color: #cbd5e1;
+  text-align: center;
+  font-weight: 600;
+  line-height: 1.2;
+}
+

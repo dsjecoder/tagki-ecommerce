@@ -32,6 +32,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (aiProdName) aiProdName.value = pfName.value;
     });
   }
+
+  // Initialize Product Image Uploader Components
+  initPresetIconsGrid();
+  initProductDropzone();
 });
 
 function checkAdminAuth() {
@@ -376,7 +380,6 @@ function openProductModalForm(productId = null) {
     document.getElementById('pf-badge').value = p.badge || '';
     document.getElementById('pf-price-vnd').value = p.price;
     document.getElementById('pf-original-price').value = p.originalPrice || '';
-    document.getElementById('pf-image').value = p.image;
     document.getElementById('pf-desc-vi').value = p.description || '';
     if (document.getElementById('pf-desc-en')) {
       document.getElementById('pf-desc-en').value = p.description_en || p.description || '';
@@ -385,6 +388,10 @@ function openProductModalForm(productId = null) {
 
     // Load existing variants
     renderProductVariantsUI(p.variants || []);
+
+    // Load and preview image
+    updateProductImagePreview(p.image);
+    switchProductImgTab('upload');
   } else {
     title.textContent = "Thêm Sản Phẩm Mới";
     document.getElementById('pf-id').value = '';
@@ -393,7 +400,6 @@ function openProductModalForm(productId = null) {
     document.getElementById('pf-badge').value = '';
     document.getElementById('pf-price-vnd').value = '';
     document.getElementById('pf-original-price').value = '';
-    document.getElementById('pf-image').value = '';
     document.getElementById('pf-desc-vi').value = '';
     if (document.getElementById('pf-desc-en')) {
       document.getElementById('pf-desc-en').value = '';
@@ -407,6 +413,10 @@ function openProductModalForm(productId = null) {
       { label: "6 Tháng", price: 1190000, originalPrice: 2200000 },
       { label: "1 Năm", price: 1990000, originalPrice: 3900000 }
     ]);
+
+    // Reset image preview
+    updateProductImagePreview('');
+    switchProductImgTab('upload');
   }
 
   // Update AI Copywriter product name and clear inputs
@@ -438,10 +448,15 @@ function handleSaveProductForm(event) {
   const badge = document.getElementById('pf-badge').value;
   const priceVnd = Number(document.getElementById('pf-price-vnd').value);
   const origPriceVnd = Number(document.getElementById('pf-original-price').value);
-  const image = document.getElementById('pf-image').value;
+  const image = (document.getElementById('pf-image').value || '').trim();
   const descVi = document.getElementById('pf-desc-vi').value;
   const descEn = document.getElementById('pf-desc-en') ? document.getElementById('pf-desc-en').value : descVi;
   const isFeatured = document.getElementById('pf-is-featured').checked;
+
+  if (!image) {
+    alert("⚠️ Vui lòng tải lên hoặc chọn hình ảnh thumbnail cho sản phẩm!");
+    return;
+  }
 
   // Serialize variants from form UI
   const variantRows = document.querySelectorAll('#pf-variants-container .variant-row');
@@ -1575,3 +1590,215 @@ function applyAIPost() {
   const previewBox = document.getElementById('ai-preview-box');
   if (previewBox) previewBox.style.display = 'none';
 }
+
+// ========================================================
+// 🖼️ Product Image Upload & Asset Management Functions
+// ========================================================
+
+const PRESET_PRODUCT_ICONS = [
+  { name: "ChatGPT Plus", url: "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=400&q=80" },
+  { name: "Claude 3.5", url: "https://images.unsplash.com/photo-1620712943543-bcc4688e7485?auto=format&fit=crop&w=400&q=80" },
+  { name: "Antigravity Pro", url: "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=400&q=80" },
+  { name: "Cursor Pro", url: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?auto=format&fit=crop&w=400&q=80" },
+  { name: "Midjourney", url: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80" },
+  { name: "Canva Pro", url: "https://images.unsplash.com/photo-1572044162444-ad60f128bdea?auto=format&fit=crop&w=400&q=80" },
+  { name: "GitHub Copilot", url: "https://images.unsplash.com/photo-1618401471353-b98afee0b2eb?auto=format&fit=crop&w=400&q=80" },
+  { name: "JetBrains", url: "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=400&q=80" },
+  { name: "Netflix 4K", url: "https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?auto=format&fit=crop&w=400&q=80" },
+  { name: "Spotify", url: "https://images.unsplash.com/photo-1614680376593-902f749f7ffc?auto=format&fit=crop&w=400&q=80" },
+  { name: "YouTube Pre", url: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=400&q=80" },
+  { name: "CapCut Pro", url: "https://images.unsplash.com/photo-1536240478700-b869070f9279?auto=format&fit=crop&w=400&q=80" },
+  { name: "Figma Pro", url: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?auto=format&fit=crop&w=400&q=80" },
+  { name: "Adobe CC", url: "https://images.unsplash.com/photo-1600132806370-bf17e65e942f?auto=format&fit=crop&w=400&q=80" },
+  { name: "Microsoft 365", url: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=400&q=80" },
+  { name: "VPN Express", url: "https://images.unsplash.com/photo-1563986768609-322da13575f3?auto=format&fit=crop&w=400&q=80" }
+];
+
+function initPresetIconsGrid() {
+  const grid = document.getElementById('preset-icons-grid');
+  if (!grid) return;
+  grid.innerHTML = PRESET_PRODUCT_ICONS.map(item => `
+    <div class="preset-icon-card" onclick="selectPresetIcon('${item.url}', '${item.name}')" title="Chọn ${item.name}">
+      <img src="${item.url}" alt="${item.name}">
+      <span>${item.name}</span>
+    </div>
+  `).join('');
+}
+
+function switchProductImgTab(tab) {
+  const tabs = ['upload', 'url', 'preset'];
+  tabs.forEach(t => {
+    const btn = document.getElementById(`tab-btn-${t}`);
+    const content = document.getElementById(`img-tab-content-${t}`);
+    if (btn) {
+      if (t === tab) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+    if (content) {
+      content.style.display = (t === tab) ? 'block' : 'none';
+    }
+  });
+}
+
+function compressAndReadImage(file, maxWidth = 1000, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    if (!file.type.startsWith('image/')) {
+      return reject(new Error('Tệp tải lên phải là định dạng hình ảnh hợp lệ (PNG, JPG, WEBP, GIF, SVG)!'));
+    }
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        let dataUrl = canvas.toDataURL('image/webp', quality);
+        if (!dataUrl.startsWith('data:image/webp')) {
+          dataUrl = canvas.toDataURL('image/jpeg', quality);
+        }
+        const sizeKB = Math.round((dataUrl.length * 3 / 4) / 1024);
+        resolve({ dataUrl, width, height, sizeKB, originalName: file.name });
+      };
+      img.onerror = () => reject(new Error('Không thể xử lý hình ảnh này!'));
+      img.src = e.target.result;
+    };
+    reader.onerror = () => reject(new Error('Lỗi khi đọc file ảnh từ máy tính!'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleProductFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  processProductImageFile(file);
+}
+
+function processProductImageFile(file) {
+  compressAndReadImage(file)
+    .then(({ dataUrl, width, height, sizeKB, originalName }) => {
+      document.getElementById('pf-image').value = dataUrl;
+      const urlInput = document.getElementById('pf-image-url-input');
+      if (urlInput) urlInput.value = '';
+      
+      const previewContainer = document.getElementById('pf-image-preview-container');
+      const previewImg = document.getElementById('pf-image-preview');
+      const info = document.getElementById('pf-image-info');
+      
+      if (previewContainer && previewImg) {
+        previewImg.src = dataUrl;
+        if (info) info.textContent = `${originalName} (${width}x${height}px, ~${sizeKB} KB)`;
+        previewContainer.style.display = 'flex';
+      }
+    })
+    .catch(err => {
+      alert("❌ " + err.message);
+    });
+}
+
+function handleProductUrlInput(url) {
+  url = (url || '').trim();
+  document.getElementById('pf-image').value = url;
+  updateProductImagePreview(url);
+}
+
+function selectPresetIcon(url, name) {
+  document.getElementById('pf-image').value = url;
+  const urlInput = document.getElementById('pf-image-url-input');
+  if (urlInput) urlInput.value = url;
+  updateProductImagePreview(url, `Mẫu có sẵn: ${name}`);
+}
+
+function updateProductImagePreview(imageUrl, customInfo = null) {
+  const container = document.getElementById('pf-image-preview-container');
+  const previewImg = document.getElementById('pf-image-preview');
+  const info = document.getElementById('pf-image-info');
+  const masterInput = document.getElementById('pf-image');
+  const urlInput = document.getElementById('pf-image-url-input');
+
+  if (!container || !previewImg) return;
+
+  if (imageUrl && imageUrl.trim()) {
+    if (masterInput) masterInput.value = imageUrl.trim();
+    if (urlInput && !urlInput.value) urlInput.value = imageUrl.trim();
+    previewImg.src = imageUrl.trim();
+    if (info) {
+      info.textContent = customInfo || (imageUrl.startsWith('data:') ? 'Ảnh tải từ máy tính' : 'Đường dẫn ảnh trực tuyến');
+    }
+    container.style.display = 'flex';
+  } else {
+    if (masterInput) masterInput.value = '';
+    if (urlInput) urlInput.value = '';
+    previewImg.src = '';
+    container.style.display = 'none';
+  }
+}
+
+function clearProductImage() {
+  updateProductImagePreview('');
+  const fileInput = document.getElementById('pf-image-file');
+  if (fileInput) fileInput.value = '';
+}
+
+function initProductDropzone() {
+  const dropzone = document.getElementById('pf-dropzone');
+  if (!dropzone) return;
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const file = dt && dt.files && dt.files[0];
+    if (file) {
+      processProductImageFile(file);
+    }
+  }, false);
+}
+
+// Quick helper for Blog & Banner file uploads
+function handleBlogFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  compressAndReadImage(file, 1200, 0.85)
+    .then(({ dataUrl }) => {
+      const input = document.getElementById('bf-image');
+      if (input) input.value = dataUrl;
+      alert("✓ Đã tải ảnh banner bài viết thành công!");
+    })
+    .catch(err => alert("❌ " + err.message));
+}
+
+function handleBannerFileSelect(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  compressAndReadImage(file, 1600, 0.85)
+    .then(({ dataUrl }) => {
+      const input = document.getElementById('ban-image');
+      if (input) input.value = dataUrl;
+      alert("✓ Đã tải ảnh banner slider thành công!");
+    })
+    .catch(err => alert("❌ " + err.message));
+}
+

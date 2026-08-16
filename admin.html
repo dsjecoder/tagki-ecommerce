@@ -589,9 +589,70 @@
             <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Giá Gốc VND</label>
             <input type="number" id="pf-original-price" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
           </div>
-          <div style="grid-column: 1/-1;">
-            <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">URL Hình Ảnh Thumbnail *</label>
-            <input type="text" id="pf-image" required placeholder="https://images.unsplash.com/..." style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
+          <!-- 🖼️ Dynamic Product Image Upload & Manager Component -->
+          <div style="grid-column: 1/-1; background: #131b33; border: 1px solid #2b365a; border-radius: 12px; padding: 16px; margin: 4px 0;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 8px;">
+              <label style="font-size: 0.82rem; font-weight: 700; color: #edf2f4; display: flex; align-items: center; gap: 6px; margin: 0;">
+                <span>🖼️</span> Hình Ảnh Thumbnail Sản Phẩm *
+              </label>
+              <!-- Tab Switchers -->
+              <div style="display: flex; gap: 4px; background: #0b132b; padding: 3px; border-radius: 8px; border: 1px solid #2b365a;">
+                <button type="button" class="img-tab-btn active" id="tab-btn-upload" onclick="switchProductImgTab('upload')">
+                  📁 Tải từ máy tính
+                </button>
+                <button type="button" class="img-tab-btn" id="tab-btn-url" onclick="switchProductImgTab('url')">
+                  🔗 Nhập URL
+                </button>
+                <button type="button" class="img-tab-btn" id="tab-btn-preset" onclick="switchProductImgTab('preset')">
+                  ⚡ Mẫu có sẵn
+                </button>
+              </div>
+            </div>
+
+            <!-- Tab 1: File Upload & Drag-and-Drop Area -->
+            <div id="img-tab-content-upload">
+              <div id="pf-dropzone" class="admin-dropzone" onclick="document.getElementById('pf-image-file').click()">
+                <input type="file" id="pf-image-file" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" style="display: none;" onchange="handleProductFileSelect(event)">
+                <div style="font-size: 2rem; margin-bottom: 6px;">📤</div>
+                <div style="font-weight: 700; color: #edf2f4; font-size: 0.88rem; margin-bottom: 4px;">Kéo & Thả ảnh vào đây, hoặc <span style="color: #3a86ff; text-decoration: underline;">Chọn từ máy tính</span></div>
+                <div style="font-size: 0.75rem; color: #8d99ae;">Hỗ trợ PNG, JPG, WEBP, GIF, SVG (Tự động nén chất lượng cao, tối ưu hiển thị)</div>
+              </div>
+            </div>
+
+            <!-- Tab 2: Direct URL Input -->
+            <div id="img-tab-content-url" style="display: none;">
+              <input type="text" id="pf-image-url-input" placeholder="Dán link ảnh (VD: https://images.unsplash.com/...)" oninput="handleProductUrlInput(this.value)" style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px; font-size: 0.85rem;">
+            </div>
+
+            <!-- Tab 3: Preset Icons -->
+            <div id="img-tab-content-preset" style="display: none;">
+              <div style="font-size: 0.75rem; color: #8d99ae; margin-bottom: 8px;">Nhấp để chọn nhanh biểu tượng công cụ phổ biến:</div>
+              <div id="preset-icons-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 8px; max-height: 160px; overflow-y: auto; padding-right: 4px;">
+                <!-- Populated dynamically via JS -->
+              </div>
+            </div>
+
+            <!-- Master hidden input (always holds the final image URL or Base64 data) -->
+            <input type="hidden" id="pf-image" required>
+
+            <!-- Image Live Preview Box -->
+            <div id="pf-image-preview-container" style="display: none; margin-top: 12px; background: #0b132b; border: 1px solid #2b365a; border-radius: 10px; padding: 10px; align-items: center; gap: 14px;">
+              <div style="position: relative; width: 68px; height: 68px; border-radius: 8px; overflow: hidden; background: #1c2541; border: 1px solid #3a86ff; flex-shrink: 0;">
+                <img id="pf-image-preview" src="" alt="Thumbnail Preview" style="width: 100%; height: 100%; object-fit: cover;">
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div style="font-weight: 700; font-size: 0.82rem; color: white; margin-bottom: 2px; display: flex; align-items: center; gap: 6px;">
+                  <span style="color: #10b981;">✓</span> Đã tải ảnh thumbnail
+                </div>
+                <div id="pf-image-info" style="font-size: 0.75rem; color: #8d99ae; word-break: break-all; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                  Kích thước: Tối ưu
+                </div>
+              </div>
+              <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                <button type="button" onclick="document.getElementById('pf-image-file').click()" class="admin-btn" style="background: #2b365a; padding: 6px 10px; font-size: 0.75rem;">🔄 Đổi ảnh</button>
+                <button type="button" onclick="clearProductImage()" class="admin-btn admin-btn-danger" style="padding: 6px 10px; font-size: 0.75rem;">🗑️ Xóa</button>
+              </div>
+            </div>
           </div>
           <!-- ✨ AI Copywriter Widget (AIDA & SEO) -->
           <div style="grid-column: 1/-1; background: linear-gradient(145deg, #161e38, #1c2541); border: 1px solid #3a86ff; border-radius: 12px; padding: 18px; margin: 10px 0; box-shadow: 0 4px 15px rgba(58, 134, 255, 0.15);">
@@ -745,8 +806,14 @@
           </div>
         </div>
         <div style="margin-bottom: 12px;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">URL Hình ảnh Banner *</label>
-          <input type="text" id="bf-image" required placeholder="https://images.unsplash.com/..." style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Hình ảnh Banner Bài Viết *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="bf-image" required placeholder="https://images.unsplash.com/..." style="flex: 1; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
+            <label class="admin-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; margin: 0; background: #2b365a;">
+              📁 Tải từ máy
+              <input type="file" accept="image/*" style="display: none;" onchange="handleBlogFileSelect(event)">
+            </label>
+          </div>
         </div>
         <div style="margin-bottom: 12px;">
           <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Tóm tắt ngắn *</label>
@@ -782,8 +849,14 @@
           <input type="text" id="ban-subtitle" required style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
         </div>
         <div style="margin-bottom: 12px;">
-          <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">URL Hình ảnh Banner *</label>
-          <input type="text" id="ban-image" required placeholder="https://images.unsplash.com/..." style="width: 100%; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
+          <label style="font-size: 0.8rem; font-weight: 700; color: #edf2f4; display: block; margin-bottom: 4px;">Hình ảnh Banner *</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="ban-image" required placeholder="https://images.unsplash.com/..." style="flex: 1; background: #0b132b; color: white; border: 1px solid #2b365a; padding: 10px; border-radius: 8px;">
+            <label class="admin-btn" style="display: inline-flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap; margin: 0; background: #2b365a;">
+              📁 Tải từ máy
+              <input type="file" accept="image/*" style="display: none;" onchange="handleBannerFileSelect(event)">
+            </label>
+          </div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;">
           <div>
