@@ -257,6 +257,16 @@ function applySettingsToUI() {
     if (title === 'WhatsApp Business' && s.whatsapp) el.href = s.whatsapp;
     if (title === 'Twitter / X' && s.twitter) el.href = s.twitter;
   });
+
+  // 5. Dynamic Footer Payment Bank Badge
+  if (s.bankName) {
+    document.querySelectorAll('.main-footer span').forEach(span => {
+      if (span.textContent.trim().toUpperCase() === 'MB BANK' || span.classList.contains('footer-bank-badge')) {
+        span.textContent = s.bankName.toUpperCase();
+        span.classList.add('footer-bank-badge');
+      }
+    });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {

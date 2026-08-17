@@ -775,7 +775,26 @@ function getStoredSettings() {
   if (localSettings) {
     try {
       const parsed = JSON.parse(localSettings);
-      return { ...DEFAULT_SETTINGS, ...parsed };
+      return {
+        ...DEFAULT_SETTINGS,
+        ...parsed,
+        bankName: parsed.bankName || parsed.bank_name || DEFAULT_SETTINGS.bankName,
+        accountNumber: parsed.accountNumber || parsed.account_number || DEFAULT_SETTINGS.accountNumber,
+        accountHolder: parsed.accountHolder || parsed.account_holder || DEFAULT_SETTINGS.accountHolder,
+        qrTemplate: parsed.qrTemplate || parsed.qr_template || DEFAULT_SETTINGS.qrTemplate,
+        logoText: parsed.logoText || parsed.logo_text || DEFAULT_SETTINGS.logoText,
+        logoImage: parsed.logoImage || parsed.logo_image || DEFAULT_SETTINGS.logoImage,
+        hotline: parsed.hotline || DEFAULT_SETTINGS.hotline,
+        facebook: parsed.facebook || DEFAULT_SETTINGS.facebook,
+        telegram: parsed.telegram || DEFAULT_SETTINGS.telegram,
+        whatsapp: parsed.whatsapp || DEFAULT_SETTINGS.whatsapp,
+        twitter: parsed.twitter || DEFAULT_SETTINGS.twitter,
+        zalo: parsed.zalo || DEFAULT_SETTINGS.zalo,
+        oxapayKey: parsed.oxapayKey || parsed.oxapay_key || DEFAULT_SETTINGS.oxapayKey,
+        oxapayWallet: parsed.oxapayWallet || parsed.oxapay_wallet || parsed.usdt_trc20_address || DEFAULT_SETTINGS.oxapayWallet,
+        binanceId: parsed.binanceId || parsed.binance_id || DEFAULT_SETTINGS.binanceId,
+        binanceKey: parsed.binanceKey || parsed.binance_key || DEFAULT_SETTINGS.binanceKey
+      };
     } catch (e) {
       console.error(e);
     }

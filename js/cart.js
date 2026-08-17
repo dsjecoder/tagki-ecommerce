@@ -132,13 +132,13 @@ function renderCartDrawer() {
         <img src="${item.image}" alt="${item.name}">
         <div class="cart-item-details">
           <div class="cart-item-title">${item.name}</div>
-          <div class="cart-item-variant">Gói: ${item.variantLabel}</div>
+          <div class="cart-item-variant">${currentLang === 'en' ? 'Plan:' : 'Gói:'} ${item.variantLabel}</div>
           <div class="cart-item-price">${formatCurrency(item.price)}</div>
           <div class="qty-control">
             <button class="qty-btn" onclick="updateQuantity('${item.cartItemId}', -1)">-</button>
             <span style="font-size: 0.85rem; font-weight: 700;">${item.quantity}</span>
             <button class="qty-btn" onclick="updateQuantity('${item.cartItemId}', 1)">+</button>
-            <button onclick="removeFromCart('${item.cartItemId}')" style="margin-left: auto; background: none; border: none; color: #ef4444; font-size: 0.75rem; font-weight: 600;">Xóa</button>
+            <button onclick="removeFromCart('${item.cartItemId}')" style="margin-left: auto; background: none; border: none; color: #ef4444; font-size: 0.75rem; font-weight: 600;">${currentLang === 'en' ? 'Remove' : 'Xóa'}</button>
           </div>
         </div>
       </div>
@@ -227,7 +227,7 @@ function openCheckoutModal() {
 
   currentDiscountVnd = 0;
   appliedPromoCode = "";
-  currentCheckoutOrderCode = "ET-" + Math.floor(100000 + Math.random() * 900000);
+  currentCheckoutOrderCode = "TK-" + Math.floor(100000 + Math.random() * 900000);
 
   const subtotalVnd = cartState.reduce((sum, i) => sum + (i.price * i.quantity), 0);
   currentCheckoutTotalVnd = subtotalVnd;
@@ -306,7 +306,7 @@ function openCheckoutModal() {
           <div>
             <label style="display: block; font-size: 0.78rem; font-weight: 700; color: #334155; margin-bottom: 4px;">${labelPromo}</label>
             <div style="display: flex; gap: 4px;">
-              <input type="text" id="checkout-promo-input" placeholder="EMPIRE2026" style="flex:1; border: 1px solid #cbd5e1; padding: 8px; border-radius: 8px; font-size: 0.82rem; text-transform: uppercase; background: white; color: #0f172a;">
+              <input type="text" id="checkout-promo-input" placeholder="TAGKI2026" style="flex:1; border: 1px solid #cbd5e1; padding: 8px; border-radius: 8px; font-size: 0.82rem; text-transform: uppercase; background: white; color: #0f172a;">
               <button type="button" onclick="applyDiscountCode()" style="background:#2579f2; color:white; padding: 0 10px; border-radius: 8px; font-weight:700; font-size:0.8rem; border:none; cursor:pointer;">${btnApply}</button>
             </div>
           </div>
@@ -572,7 +572,7 @@ function verifyReferralCode() {
 
   let referrals = JSON.parse(localStorage.getItem('tagki_referral_codes')) || [
     { code: "DEV2026", referrerName: "Lập trình viên Cộng tác", note: "Mã giới thiệu dev" },
-    { code: "EMPIREPARTNER", referrerName: "Đối tác Tagki", note: "Mã đối tác chính thức" }
+    { code: "TAGKIPARTNER", referrerName: "Đối tác Tagki", note: "Mã đối tác chính thức" }
   ];
   localStorage.setItem('tagki_referral_codes', JSON.stringify(referrals));
 
