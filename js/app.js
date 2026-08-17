@@ -5,6 +5,27 @@ let currentSlideIndex = 0;
 let slideTimer = null;
 let flashSaleInterval = null;
 
+function checkUrlForProductDeepLink() {
+  const params = new URLSearchParams(window.location.search);
+  const pId = params.get('p') || params.get('product') || (window.location.hash.startsWith('#product-') ? window.location.hash.replace('#product-', '') : null);
+  if (pId) {
+    setTimeout(() => {
+      openProductModal(pId, false);
+    }, 120);
+  }
+}
+
+// Handle Browser Back & Forward buttons for SEO URLs
+window.addEventListener('popstate', (e) => {
+  const params = new URLSearchParams(window.location.search);
+  const pId = params.get('p') || params.get('product') || (e.state && e.state.productId);
+  if (pId) {
+    openProductModal(pId, false);
+  } else {
+    closeProductModal(false);
+  }
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   renderCategories();
   renderProducts();
@@ -15,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCartDrawer();
   initFlashSale();
   renderLatestBlogs();
+  checkUrlForProductDeepLink();
 });
 
 // Render Category Chips
@@ -339,8 +361,43 @@ function startCarouselAutoPlay() {
   }, 4500);
 }
 
-// Product Quick View Modal
-function openProductModal(productId) {
+// SEO Schema JSON-LD Injection for Google Rich Snippets
+function injectProductSchemaJsonLd(product) {
+  let script = document.getElementById('product-schema-jsonld');
+  if (!script) {
+    script = document.createElement('script');
+    script.id = 'product-schema-jsonld';
+    script.type = 'application/ld+json';
+    document.head.appendChild(script);
+  }
+  const v = product.variants && product.variants[0] ? product.variants[0] : null;
+  const price = v ? v.price : product.price;
+  const schemaData = {
+    "@context": "https://schema.org/",
+    "@type": "Product",
+    "name": product.name,
+    "image": [product.image],
+    "description": product.description,
+    "sku": product.id,
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "VND",
+      "price": price,
+      "availability": "https://schema.org/InStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": product.rating || 5.0,
+      "reviewCount": product.sold || 10
+    }
+  };
+  script.textContent = JSON.stringify(schemaData);
+}
+
+// Product Quick View Modal with SEO URL Deep Linking & Psychological Anchor Pricing
+function openProductModal(productId, updateUrl = true) {
   const product = STORE_DATA.products.find(p => p.id === productId);
   if (!product) return;
 
@@ -350,8 +407,14 @@ function openProductModal(productId) {
   const productName = currentLang === 'en' && product.name_en ? product.name_en : product.name;
   const productType = currentLang === 'en' && product.type_en ? product.type_en : product.type;
 
+  const v0 = product.variants && product.variants[0] ? product.variants[0] : null;
+  const initialPrice = v0 ? v0.price : product.price;
+  const initialOrigPrice = v0 ? (v0.originalPrice || v0.price * 1.5) : (product.originalPrice || product.price * 1.5);
+  const initialDiscount = initialOrigPrice > initialPrice ? Math.round((1 - initialPrice / initialOrigPrice) * 100) : 0;
+  const initialSavings = initialOrigPrice > initialPrice ? (initialOrigPrice - initialPrice) : 0;
+
   modalBody.innerHTML = `
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 20px;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px;">
       <div>
         <img src="${product.image}" alt="${productName}" style="width: 100%; border-radius: 12px; height: 260px; object-fit: cover; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
         <div style="margin-top: 12px; display: flex; gap: 8px;">
@@ -360,15 +423,28 @@ function openProductModal(productId) {
         </div>
       </div>
       <div>
-        <h2 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-bottom: 8px;">${productName}</h2>
+        <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.3;">${productName}</h2>
         <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">${t('rating')}: ★ ${product.rating} (${t('sold')} ${product.sold})</div>
-        <p style="font-size: 0.9rem; color: #334155; margin-bottom: 16px; line-height: 1.4;">${currentLang === 'en' && product.description_en ? product.description_en : product.description}</p>
+
+        <!-- Psychological Pricing Showcase (Giá hiện tại, Giá gốc gạch ngang, % Giảm giá & Tiết kiệm) -->
+        <div class="modal-pricing-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding: 12px 16px; background: #f0f7ff; border: 1.5px solid #bae6fd; border-radius: 10px;">
+          <div style="display: flex; align-items: baseline; gap: 10px;">
+            <span id="modal-current-price" style="font-size: 1.5rem; font-weight: 900; color: #0284c7;">${formatCurrency(initialPrice)}</span>
+            <span id="modal-orig-price" style="font-size: 0.95rem; color: #94a3b8; text-decoration: line-through; font-weight: 600;">${formatCurrency(initialOrigPrice)}</span>
+            <span id="modal-discount-badge" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; ${initialDiscount > 0 ? '' : 'display: none;'}">-${initialDiscount}%</span>
+          </div>
+          <div id="modal-savings-text" style="font-size: 0.8rem; color: #059669; font-weight: 800; background: #d1fae5; padding: 4px 10px; border-radius: 6px; ${initialSavings > 0 ? '' : 'display: none;'}">
+            ${currentLang === 'en' ? 'Save ' + formatCurrency(initialSavings) : 'Tiết kiệm ' + formatCurrency(initialSavings)}
+          </div>
+        </div>
+
+        <p style="font-size: 0.88rem; color: #334155; margin-bottom: 16px; line-height: 1.45;">${currentLang === 'en' && product.description_en ? product.description_en : product.description}</p>
         
         <div style="margin-bottom: 16px;">
           <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 8px;">${currentLang === 'en' ? 'Select Plan Duration:' : 'Chọn gói thời hạn:'}</label>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="variant-selector-box">
             ${product.variants ? product.variants.map((v, i) => `
-              <button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="selectVariant(${i})" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: ${i === 0 ? '#2579f2' : 'white'}; color: ${i === 0 ? 'white' : '#1e293b'}; font-weight: 700; font-size: 0.85rem;">
+              <button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="selectVariant(${i}, '${product.id}')" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: ${i === 0 ? '#2579f2' : 'white'}; color: ${i === 0 ? 'white' : '#1e293b'}; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
                 ${v.label} - ${formatCurrency(v.price)}
               </button>
             `).join('') : '<span style="font-size: 0.85rem;">Bản chuẩn</span>'}
@@ -383,7 +459,7 @@ function openProductModal(productId) {
         </div>
 
         <div style="display: flex; gap: 12px; align-items: center;">
-          <button onclick="addToCart('${product.id}', window.currentModalVariant || 0); closeProductModal();" style="flex: 1; background: linear-gradient(90deg, #2579f2, #1e6fdc); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(37,121,242,0.35);">
+          <button onclick="addToCart('${product.id}', window.currentModalVariant || 0); closeProductModal();" style="flex: 1; background: linear-gradient(90deg, #2579f2, #1e6fdc); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: 800; font-size: 0.95rem; box-shadow: 0 4px 14px rgba(37,121,242,0.35); cursor: pointer;">
             ${t('add_to_cart')}
           </button>
         </div>
@@ -393,10 +469,22 @@ function openProductModal(productId) {
 
   window.currentModalVariant = 0;
   document.getElementById('product-modal')?.classList.add('active');
+
+  // SEO URL routing & Title update
+  if (updateUrl) {
+    const url = new URL(window.location);
+    url.searchParams.set('p', product.id);
+    window.history.pushState({ productId: product.id }, '', url);
+  }
+  document.title = `${productName} - Tagki AI & Software`;
+  injectProductSchemaJsonLd(product);
 }
 
-function selectVariant(idx) {
+function selectVariant(idx, productId) {
   window.currentModalVariant = idx;
+  const prod = STORE_DATA.products.find(p => p.id === productId);
+  if (!prod) return;
+
   const btns = document.querySelectorAll('#variant-selector-box .variant-btn');
   btns.forEach((b, i) => {
     if (i === idx) {
@@ -407,10 +495,43 @@ function selectVariant(idx) {
       b.style.color = '#1e293b';
     }
   });
+
+  const v = prod.variants && prod.variants[idx] ? prod.variants[idx] : null;
+  if (v) {
+    const price = v.price;
+    const origPrice = v.originalPrice || v.price * 1.5;
+    const discount = origPrice > price ? Math.round((1 - price / origPrice) * 100) : 0;
+    const savings = origPrice > price ? (origPrice - price) : 0;
+
+    const curEl = document.getElementById('modal-current-price');
+    const origEl = document.getElementById('modal-orig-price');
+    const discBadge = document.getElementById('modal-discount-badge');
+    const saveEl = document.getElementById('modal-savings-text');
+
+    if (curEl) curEl.textContent = formatCurrency(price);
+    if (origEl) origEl.textContent = formatCurrency(origPrice);
+    if (discBadge) {
+      discBadge.textContent = `-${discount}%`;
+      discBadge.style.display = discount > 0 ? 'inline-block' : 'none';
+    }
+    if (saveEl) {
+      saveEl.textContent = (currentLang === 'en' ? 'Save ' + formatCurrency(savings) : 'Tiết kiệm ' + formatCurrency(savings));
+      saveEl.style.display = savings > 0 ? 'block' : 'none';
+    }
+  }
 }
 
-function closeProductModal() {
+function closeProductModal(updateUrl = true) {
   document.getElementById('product-modal')?.classList.remove('active');
+  if (updateUrl) {
+    const url = new URL(window.location);
+    url.searchParams.delete('p');
+    url.searchParams.delete('product');
+    window.history.pushState({}, '', url.pathname + (url.search ? url.search : ''));
+    document.title = (currentLang === 'en' ? 'Tagki - Premium AI Accounts & Software License Store' : 'Tagki - Cửa Hàng Tài Khoản AI & Key Bản Quyền Số 1 VN');
+  }
+  const script = document.getElementById('product-schema-jsonld');
+  if (script) script.remove();
 }
 
 // 2FA Code Generator Tool Modal
