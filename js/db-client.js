@@ -1,7 +1,8 @@
 // Tagki Database API client wrapper (talks to PostgreSQL backend or falls back to LocalStorage)
 
-//const BACKEND_API_URL = 'http://localhost:3000/api';
-const BACKEND_API_URL = 'https://tagki-backend.onrender.com/api';
+const BACKEND_API_URL = (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'))
+  ? 'http://localhost:3000/api'
+  : 'https://tagki-backend.onrender.com/api';
 
 async function dbFetch(endpoint) {
   try {
@@ -44,13 +45,27 @@ async function syncDatabaseWithBackend() {
   // 1. Fetch Categories
   const categories = await dbFetch('/categories');
   if (categories && categories.length > 0) {
-    saveStoredCategories(categories);
+    const localCategories = (typeof getStoredCategories === 'function') ? getStoredCategories() : [];
+    const merged = [...categories];
+    localCategories.forEach(lc => {
+      if (!merged.some(c => c.id === lc.id)) {
+        merged.push(lc);
+      }
+    });
+    saveStoredCategories(merged);
   }
 
   // 2. Fetch Products
   const products = await dbFetch('/products');
   if (products && products.length > 0) {
-    saveStoredProducts(products);
+    const localProducts = (typeof getStoredProducts === 'function') ? getStoredProducts() : [];
+    const merged = [...products];
+    localProducts.forEach(lp => {
+      if (!merged.some(p => p.id === lp.id)) {
+        merged.push(lp);
+      }
+    });
+    saveStoredProducts(merged);
   }
 
   // 3. Fetch Settings

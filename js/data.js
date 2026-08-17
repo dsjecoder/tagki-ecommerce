@@ -857,6 +857,11 @@ window.addEventListener('storage', (e) => {
     STORE_DATA.products = getStoredProducts();
     if (typeof renderProducts === 'function') renderProducts();
     if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
+    if (typeof syncCartWithLatestProducts === 'function') {
+      syncCartWithLatestProducts();
+      if (typeof renderCartDrawer === 'function') renderCartDrawer();
+      if (typeof updateCartBadge === 'function') updateCartBadge();
+    }
   }
   if (e.key === 'tagki_categories') {
     STORE_DATA.categories = getStoredCategories();
@@ -869,9 +874,19 @@ window.addEventListener('storage', (e) => {
   if (e.key === 'tagki_settings') {
     STORE_DATA.settings = getStoredSettings();
     if (typeof applySettingsToUI === 'function') applySettingsToUI();
+    if (typeof switchGatewayTab === 'function' && typeof activePaymentTab !== 'undefined') {
+      switchGatewayTab(activePaymentTab);
+    }
   }
   if (e.key === 'tagki_banners') {
     STORE_DATA.banners = getStoredBanners();
     if (typeof initCarousel === 'function') initCarousel();
+  }
+  if (e.key === 'tagki_cart') {
+    if (typeof cartState !== 'undefined') {
+      cartState = JSON.parse(localStorage.getItem('tagki_cart')) || [];
+      if (typeof updateCartBadge === 'function') updateCartBadge();
+      if (typeof renderCartDrawer === 'function') renderCartDrawer();
+    }
   }
 });

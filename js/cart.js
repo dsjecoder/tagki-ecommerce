@@ -3,6 +3,45 @@
 let cartState = JSON.parse(localStorage.getItem('tagki_cart')) || [];
 let activePaymentTab = 'vietqr';
 
+function syncCartWithLatestProducts() {
+  if (!cartState || cartState.length === 0) return;
+  let changed = false;
+  const products = (typeof getStoredProducts === 'function') ? getStoredProducts() : (STORE_DATA?.products || []);
+
+  cartState.forEach(item => {
+    const prod = products.find(p => p.id === item.id);
+    if (prod) {
+      if (item.name !== prod.name) {
+        item.name = prod.name;
+        changed = true;
+      }
+      if (item.image !== prod.image) {
+        item.image = prod.image;
+        changed = true;
+      }
+      // If regular item (not flash sale), update price & label if variant changed in admin
+      if (!item.cartItemId.includes('_flash')) {
+        const parts = item.cartItemId.split('_');
+        const vIdx = parseInt(parts[parts.length - 1], 10) || 0;
+        if (prod.variants && prod.variants[vIdx]) {
+          if (item.price !== prod.variants[vIdx].price) {
+            item.price = prod.variants[vIdx].price;
+            item.variantLabel = prod.variants[vIdx].label;
+            changed = true;
+          }
+        } else if (item.price !== prod.price) {
+          item.price = prod.price;
+          changed = true;
+        }
+      }
+    }
+  });
+
+  if (changed) {
+    localStorage.setItem('tagki_cart', JSON.stringify(cartState));
+  }
+}
+
 function saveCart() {
   localStorage.setItem('tagki_cart', JSON.stringify(cartState));
   updateCartBadge();
@@ -110,6 +149,8 @@ function renderCartDrawer() {
 }
 
 function openCartDrawer() {
+  syncCartWithLatestProducts();
+  renderCartDrawer();
   document.getElementById('cart-drawer')?.classList.add('active');
   document.getElementById('cart-backdrop')?.classList.add('active');
 }
@@ -176,6 +217,7 @@ let currentCheckoutTotalUsd = 0;
 
 // Multi-Gateway Checkout Modal (VietQR, OxaPay Crypto, Binance Pay)
 function openCheckoutModal() {
+  syncCartWithLatestProducts();
   if (!currentUser) {
     showToast(currentLang === 'en' ? "Please sign in to proceed with checkout!" : "Vui lòng đăng nhập để tiến hành thanh toán!");
     setTimeout(() => {
