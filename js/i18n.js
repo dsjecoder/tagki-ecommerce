@@ -162,11 +162,21 @@ function setLanguage(lang) {
   updateUIStrings();
   applySettingsToUI();
   
-  // Sync open product modal in the new language if active
+  // Sync open product modal in the new language if active & update URL
+  const url = new URL(window.location);
+  url.searchParams.set('lang', lang);
+
   if (window.currentOpenProductId && typeof openProductModal === 'function') {
-    openProductModal(window.currentOpenProductId, true);
+    if (typeof findProductBySlugOrId === 'function' && typeof getProductSlug === 'function') {
+      const product = findProductBySlugOrId(window.currentOpenProductId);
+      if (product) {
+        url.searchParams.set('p', getProductSlug(product, lang));
+      }
+    }
+    window.history.pushState({ productId: window.currentOpenProductId, lang }, '', url);
+    openProductModal(window.currentOpenProductId, false);
   } else {
-    // Update base title
+    window.history.pushState({ lang }, '', url);
     document.title = (currentLang === 'en' ? 'Tagki - Premium AI Accounts & Software License Store' : 'Tagki - Cửa Hàng Tài Khoản AI & Key Bản Quyền Số 1 VN');
   }
 

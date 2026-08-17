@@ -15,6 +15,8 @@ const INITIAL_CATEGORIES = [
 const INITIAL_PRODUCTS = [
   {
     id: "chatgpt-plus",
+    slug_vi: "tai-khoan-chatgpt-plus-chinh-chu",
+    slug_en: "chatgpt-plus-official-subscription",
     isFeatured: true,
     name: "ChatGPT Plus (GPT-4o & Sora)",
     name_en: "ChatGPT Plus (GPT-4o & Sora)",
@@ -35,14 +37,22 @@ const INITIAL_PRODUCTS = [
       "Kích hoạt trên chính Email cá nhân của bạn",
       "Bảo hành trọn thời gian sử dụng 100%"
     ],
+    features_en: [
+      "Access latest GPT-4o and GPT-4 Turbo models",
+      "High quality image creation with DALL-E 3",
+      "Direct upgrade on your personal Email",
+      "100% full duration replacement warranty"
+    ],
     variants: [
-      { label: "1 Tháng", price: 249000, originalPrice: 490000 },
-      { label: "3 Tháng", price: 690000, originalPrice: 1470000 },
-      { label: "1 Năm", price: 2390000, originalPrice: 5880000 }
+      { label: "1 Tháng", label_en: "1 Month", price: 249000, originalPrice: 490000 },
+      { label: "3 Tháng", label_en: "3 Months", price: 690000, originalPrice: 1470000 },
+      { label: "1 Năm", label_en: "1 Year", price: 2390000, originalPrice: 5880000 }
     ]
   },
   {
     id: "antigravity-ultra",
+    slug_vi: "nang-cap-antigravity-ultra-chinh-chu",
+    slug_en: "antigravity-ultra-official-upgrade",
     isFeatured: true,
     name: "Antigravity Ultra - Nâng cấp chính chủ",
     name_en: "Antigravity Ultra - Official Upgrade",
@@ -63,13 +73,21 @@ const INITIAL_PRODUCTS = [
       "Gia hạn trực tiếp qua Google Family liên kết an toàn",
       "Bảo hành 1 đổi 1 cam kết 100%"
     ],
+    features_en: [
+      "Massive 30TB pooled cloud storage",
+      "Priority early access to Google Flow & Veo AI",
+      "Safe and verified family group upgrade",
+      "100% 1-to-1 replacement warranty"
+    ],
     variants: [
-      { label: "6 Tháng", price: 489000, originalPrice: 980000 },
-      { label: "1 Năm", price: 890000, originalPrice: 1900000 }
+      { label: "6 Tháng", label_en: "6 Months", price: 489000, originalPrice: 980000 },
+      { label: "1 Năm", label_en: "1 Year", price: 890000, originalPrice: 1900000 }
     ]
   },
   {
     id: "claude-pro",
+    slug_vi: "tai-khoan-claude-pro-sonnet",
+    slug_en: "claude-pro-ai-subscription",
     isFeatured: true,
     name: "Claude AI Pro (Claude 3.5 Sonnet)",
     name_en: "Claude AI Pro (Claude 3.5 Sonnet)",
@@ -90,9 +108,15 @@ const INITIAL_PRODUCTS = [
       "Tải lên tệp lớn, phân tích mã nguồn cực chính xác",
       "Nâng cấp trực tiếp tài khoản Anthropic của bạn"
     ],
+    features_en: [
+      "Access Claude 3.5 Sonnet and Opus models",
+      "Massive 200,000 token context window",
+      "Upload large documents & deep code review",
+      "Direct upgrade on your Anthropic account"
+    ],
     variants: [
-      { label: "1 Tháng", price: 280000, originalPrice: 520000 },
-      { label: "6 Tháng", price: 1550000, originalPrice: 3120000 }
+      { label: "1 Tháng", label_en: "1 Month", price: 280000, originalPrice: 520000 },
+      { label: "6 Tháng", label_en: "6 Months", price: 1550000, originalPrice: 3120000 }
     ]
   },
   {
@@ -729,6 +753,67 @@ function getStoredProducts() {
     }
   }
   return INITIAL_PRODUCTS;
+}
+
+function slugify(text) {
+  if (!text) return '';
+  return text
+    .toString()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/đ/g, 'd')
+    .replace(/Đ/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .substring(0, 80);
+}
+
+function getProductSlug(product, lang = (typeof currentLang !== 'undefined' ? currentLang : 'vi')) {
+  if (!product) return '';
+  if (lang === 'vi') {
+    if (product.slug_vi) return product.slug_vi;
+    const cleanName = product.name ? slugify(product.name) : product.id;
+    return cleanName.startsWith('tai-khoan-') || cleanName.startsWith('ban-quyen-') || cleanName.startsWith('nang-cap-') || cleanName.startsWith('key-')
+      ? cleanName
+      : `tai-khoan-${cleanName}`;
+  } else {
+    if (product.slug_en) return product.slug_en;
+    const cleanNameEn = product.name_en ? slugify(product.name_en) : (product.name ? slugify(product.name) : product.id);
+    return cleanNameEn.endsWith('-account') || cleanNameEn.endsWith('-subscription') || cleanNameEn.endsWith('-upgrade') || cleanNameEn.endsWith('-license')
+      ? cleanNameEn
+      : `${cleanNameEn}-subscription`;
+  }
+}
+
+function findProductBySlugOrId(query) {
+  if (!query) return null;
+  const q = String(query).toLowerCase().trim();
+  const products = (typeof getStoredProducts === 'function') ? getStoredProducts() : (STORE_DATA?.products || INITIAL_PRODUCTS);
+
+  // 1. Match by exact ID
+  let found = products.find(p => p.id && p.id.toLowerCase() === q);
+  if (found) return found;
+
+  // 2. Match by explicit slug
+  found = products.find(p => 
+    (p.slug_vi && p.slug_vi.toLowerCase() === q) || 
+    (p.slug_en && p.slug_en.toLowerCase() === q)
+  );
+  if (found) return found;
+
+  // 3. Match by dynamic slugified name
+  found = products.find(p => {
+    const sVi = getProductSlug(p, 'vi').toLowerCase();
+    const sEn = getProductSlug(p, 'en').toLowerCase();
+    const rawNameSlug = slugify(p.name).toLowerCase();
+    const rawNameEnSlug = p.name_en ? slugify(p.name_en).toLowerCase() : '';
+    return sVi === q || sEn === q || rawNameSlug === q || rawNameEnSlug === q;
+  });
+  if (found) return found;
+
+  // 4. Fallback search (query contains product ID or vice versa)
+  return products.find(p => p.id && (q.includes(p.id.toLowerCase()) || p.id.toLowerCase().includes(q)));
 }
 
 function saveStoredProducts(productsList) {

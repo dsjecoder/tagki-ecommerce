@@ -414,11 +414,13 @@ function formatVariantLabel(v) {
 }
 
 // Product Quick View Modal with Multi-Language SEO URL Deep Linking & Psychological Anchor Pricing
-function openProductModal(productId, updateUrl = true) {
-  const product = STORE_DATA.products.find(p => p.id === productId);
+function openProductModal(productQuery, updateUrl = true) {
+  const product = (typeof findProductBySlugOrId === 'function') 
+    ? findProductBySlugOrId(productQuery) 
+    : STORE_DATA.products.find(p => p.id === productQuery);
   if (!product) return;
 
-  window.currentOpenProductId = productId;
+  window.currentOpenProductId = product.id;
   const modalBody = document.getElementById('product-modal-body');
   if (!modalBody) return;
 
@@ -491,16 +493,13 @@ function openProductModal(productId, updateUrl = true) {
   window.currentModalVariant = 0;
   document.getElementById('product-modal')?.classList.add('active');
 
-  // SEO URL routing & Title update in appropriate language
+  // SEO URL routing & Title update with keyword slug
   if (updateUrl) {
+    const slug = (typeof getProductSlug === 'function') ? getProductSlug(product, currentLang) : product.id;
     const url = new URL(window.location);
-    url.searchParams.set('p', product.id);
-    if (isEn) {
-      url.searchParams.set('lang', 'en');
-    } else {
-      url.searchParams.delete('lang');
-    }
-    window.history.pushState({ productId: product.id, lang: currentLang }, '', url);
+    url.searchParams.set('p', slug);
+    url.searchParams.set('lang', currentLang);
+    window.history.pushState({ productId: product.id, slug, lang: currentLang }, '', url);
   }
   document.title = isEn ? `${productName} - Official License & Upgrades | Tagki` : `${productName} - Mua Bản Quyền Chính Hãng | Tagki`;
   injectProductSchemaJsonLd(product);
