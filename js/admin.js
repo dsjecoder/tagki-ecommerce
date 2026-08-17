@@ -473,10 +473,17 @@ function handleSaveProductForm(event) {
   let syncedProd = null;
   if (id) {
     // Edit Existing Product
-    const prodIndex = STORE_DATA.products.findIndex(p => p.id === id);
+    const slugVi = (typeof slugify === 'function' ? slugify(nameVi) : nameVi.toLowerCase().replace(/\s+/g, '-'));
+    const slugEn = (typeof slugify === 'function' ? slugify(nameEn || nameVi) : (nameEn || nameVi).toLowerCase().replace(/\s+/g, '-'));
+
+    const formattedSlugVi = slugVi.startsWith('tai-khoan-') || slugVi.startsWith('nang-cap-') || slugVi.startsWith('ban-quyen-') || slugVi.startsWith('key-') ? slugVi : `tai-khoan-${slugVi}`;
+    const formattedSlugEn = slugEn.endsWith('-subscription') || slugEn.endsWith('-upgrade') || slugEn.endsWith('-license') || slugEn.endsWith('-account') ? slugEn : `${slugEn}-subscription`;
+
     if (prodIndex > -1) {
       STORE_DATA.products[prodIndex].name = nameVi;
       STORE_DATA.products[prodIndex].name_en = nameEn;
+      STORE_DATA.products[prodIndex].slug_vi = formattedSlugVi;
+      STORE_DATA.products[prodIndex].slug_en = formattedSlugEn;
       STORE_DATA.products[prodIndex].category = cat;
       STORE_DATA.products[prodIndex].badge = badge;
       STORE_DATA.products[prodIndex].price = priceVnd;
@@ -492,10 +499,15 @@ function handleSaveProductForm(event) {
   } else {
     // Create New Product
     const newId = "prod_" + Date.now();
+    const slugVi = (typeof slugify === 'function' ? slugify(nameVi) : nameVi.toLowerCase().replace(/\s+/g, '-'));
+    const slugEn = (typeof slugify === 'function' ? slugify(nameEn || nameVi) : (nameEn || nameVi).toLowerCase().replace(/\s+/g, '-'));
+
     const newProd = {
       id: newId,
       name: nameVi,
       name_en: nameEn,
+      slug_vi: slugVi.startsWith('tai-khoan-') || slugVi.startsWith('nang-cap-') || slugVi.startsWith('ban-quyen-') || slugVi.startsWith('key-') ? slugVi : `tai-khoan-${slugVi}`,
+      slug_en: slugEn.endsWith('-subscription') || slugEn.endsWith('-upgrade') || slugEn.endsWith('-license') || slugEn.endsWith('-account') ? slugEn : `${slugEn}-subscription`,
       category: cat,
       type: "Nâng cấp chính chủ",
       type_en: "Official Upgrade",
