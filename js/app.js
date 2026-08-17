@@ -396,16 +396,37 @@ function injectProductSchemaJsonLd(product) {
   script.textContent = JSON.stringify(schemaData);
 }
 
-// Product Quick View Modal with SEO URL Deep Linking & Psychological Anchor Pricing
+// Format variant duration label according to current language
+function formatVariantLabel(v) {
+  if (!v) return currentLang === 'en' ? 'Standard Plan' : 'Bản chuẩn';
+  if (currentLang === 'en') {
+    if (v.label_en) return v.label_en;
+    return String(v.label)
+      .replace(/1 Tháng/g, '1 Month')
+      .replace(/3 Tháng/g, '3 Months')
+      .replace(/6 Tháng/g, '6 Months')
+      .replace(/1 Năm/g, '1 Year')
+      .replace(/2 Năm/g, '2 Years')
+      .replace(/Vĩnh viễn/g, 'Lifetime')
+      .replace(/Bản chuẩn/g, 'Standard');
+  }
+  return v.label;
+}
+
+// Product Quick View Modal with Multi-Language SEO URL Deep Linking & Psychological Anchor Pricing
 function openProductModal(productId, updateUrl = true) {
   const product = STORE_DATA.products.find(p => p.id === productId);
   if (!product) return;
 
+  window.currentOpenProductId = productId;
   const modalBody = document.getElementById('product-modal-body');
   if (!modalBody) return;
 
-  const productName = currentLang === 'en' && product.name_en ? product.name_en : product.name;
-  const productType = currentLang === 'en' && product.type_en ? product.type_en : product.type;
+  const isEn = (currentLang === 'en');
+  const productName = isEn && product.name_en ? product.name_en : product.name;
+  const productType = isEn && product.type_en ? product.type_en : product.type;
+  const productDesc = isEn && product.description_en ? product.description_en : product.description;
+  const productFeatures = (isEn && product.features_en && product.features_en.length) ? product.features_en : product.features;
 
   const v0 = product.variants && product.variants[0] ? product.variants[0] : null;
   const initialPrice = v0 ? v0.price : product.price;
@@ -434,27 +455,27 @@ function openProductModal(productId, updateUrl = true) {
             <span id="modal-discount-badge" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; ${initialDiscount > 0 ? '' : 'display: none;'}">-${initialDiscount}%</span>
           </div>
           <div id="modal-savings-text" style="font-size: 0.8rem; color: #059669; font-weight: 800; background: #d1fae5; padding: 4px 10px; border-radius: 6px; ${initialSavings > 0 ? '' : 'display: none;'}">
-            ${currentLang === 'en' ? 'Save ' + formatCurrency(initialSavings) : 'Tiết kiệm ' + formatCurrency(initialSavings)}
+            ${isEn ? 'Save ' + formatCurrency(initialSavings) : 'Tiết kiệm ' + formatCurrency(initialSavings)}
           </div>
         </div>
 
-        <p style="font-size: 0.88rem; color: #334155; margin-bottom: 16px; line-height: 1.45;">${currentLang === 'en' && product.description_en ? product.description_en : product.description}</p>
+        <p style="font-size: 0.88rem; color: #334155; margin-bottom: 16px; line-height: 1.45;">${productDesc}</p>
         
         <div style="margin-bottom: 16px;">
-          <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 8px;">${currentLang === 'en' ? 'Select Plan Duration:' : 'Chọn gói thời hạn:'}</label>
+          <label style="font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 8px;">${isEn ? 'Select Plan Duration:' : 'Chọn gói thời hạn:'}</label>
           <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="variant-selector-box">
             ${product.variants ? product.variants.map((v, i) => `
               <button class="variant-btn ${i === 0 ? 'active' : ''}" onclick="selectVariant(${i}, '${product.id}')" style="padding: 8px 14px; border-radius: 8px; border: 1px solid #cbd5e1; background: ${i === 0 ? '#2579f2' : 'white'}; color: ${i === 0 ? 'white' : '#1e293b'}; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                ${v.label} - ${formatCurrency(v.price)}
+                ${formatVariantLabel(v)} - ${formatCurrency(v.price)}
               </button>
-            `).join('') : '<span style="font-size: 0.85rem;">Bản chuẩn</span>'}
+            `).join('') : `<span style="font-size: 0.85rem;">${isEn ? 'Standard Plan' : 'Bản chuẩn'}</span>`}
           </div>
         </div>
 
         <div style="margin-bottom: 20px;">
-          <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 6px;">${currentLang === 'en' ? 'Key Features:' : 'Tính năng nổi bật:'}</div>
+          <div style="font-weight: 700; font-size: 0.88rem; margin-bottom: 6px;">${isEn ? 'Key Features:' : 'Tính năng nổi bật:'}</div>
           <ul style="padding-left: 18px; font-size: 0.84rem; color: #475569;">
-            ${product.features.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('')}
+            ${productFeatures.map(f => `<li style="margin-bottom: 4px;">${f}</li>`).join('')}
           </ul>
         </div>
 
@@ -470,13 +491,18 @@ function openProductModal(productId, updateUrl = true) {
   window.currentModalVariant = 0;
   document.getElementById('product-modal')?.classList.add('active');
 
-  // SEO URL routing & Title update
+  // SEO URL routing & Title update in appropriate language
   if (updateUrl) {
     const url = new URL(window.location);
     url.searchParams.set('p', product.id);
-    window.history.pushState({ productId: product.id }, '', url);
+    if (isEn) {
+      url.searchParams.set('lang', 'en');
+    } else {
+      url.searchParams.delete('lang');
+    }
+    window.history.pushState({ productId: product.id, lang: currentLang }, '', url);
   }
-  document.title = `${productName} - Tagki AI & Software`;
+  document.title = isEn ? `${productName} - Official License & Upgrades | Tagki` : `${productName} - Mua Bản Quyền Chính Hãng | Tagki`;
   injectProductSchemaJsonLd(product);
 }
 
@@ -522,6 +548,7 @@ function selectVariant(idx, productId) {
 }
 
 function closeProductModal(updateUrl = true) {
+  window.currentOpenProductId = null;
   document.getElementById('product-modal')?.classList.remove('active');
   if (updateUrl) {
     const url = new URL(window.location);

@@ -132,6 +132,13 @@ const I18N_DATA = {
 };
 
 function detectBrowserLanguage() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const urlLang = urlParams.get('lang');
+  if (urlLang && (urlLang === 'vi' || urlLang === 'en')) {
+    localStorage.setItem('tagki_lang', urlLang);
+    return urlLang;
+  }
+
   const savedLang = localStorage.getItem('tagki_lang');
   if (savedLang) return savedLang;
 
@@ -154,6 +161,15 @@ function setLanguage(lang) {
   applyLanguageClassToBody();
   updateUIStrings();
   applySettingsToUI();
+  
+  // Sync open product modal in the new language if active
+  if (window.currentOpenProductId && typeof openProductModal === 'function') {
+    openProductModal(window.currentOpenProductId, true);
+  } else {
+    // Update base title
+    document.title = (currentLang === 'en' ? 'Tagki - Premium AI Accounts & Software License Store' : 'Tagki - Cửa Hàng Tài Khoản AI & Key Bản Quyền Số 1 VN');
+  }
+
   if (typeof renderProducts === 'function') renderProducts();
   if (typeof renderFeaturedProducts === 'function') renderFeaturedProducts();
   if (typeof renderCategories === 'function') renderCategories();
