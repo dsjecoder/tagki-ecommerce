@@ -431,9 +431,12 @@ function openProductModal(productQuery, updateUrl = true) {
   const productFeatures = (isEn && product.features_en && product.features_en.length) ? product.features_en : product.features;
 
   const v0 = product.variants && product.variants[0] ? product.variants[0] : null;
-  const initialPrice = v0 ? v0.price : product.price;
-  const initialOrigPrice = v0 ? (v0.originalPrice || v0.price * 1.5) : (product.originalPrice || product.price * 1.5);
-  const initialDiscount = initialOrigPrice > initialPrice ? Math.round((1 - initialPrice / initialOrigPrice) * 100) : 0;
+  const initialPrice = Number(v0 ? v0.price : product.price) || 0;
+  let initialOrigPrice = Number(v0 ? (v0.originalPrice || v0.original_price) : (product.originalPrice || product.original_price)) || 0;
+  if (!initialOrigPrice || initialOrigPrice <= initialPrice) {
+    initialOrigPrice = Math.round(initialPrice * 1.5 / 10000) * 10000;
+  }
+  const initialDiscount = initialOrigPrice > initialPrice ? Math.round((1 - initialPrice / initialOrigPrice) * 100) : 35;
   const initialSavings = initialOrigPrice > initialPrice ? (initialOrigPrice - initialPrice) : 0;
 
   modalBody.innerHTML = `
@@ -447,14 +450,14 @@ function openProductModal(productQuery, updateUrl = true) {
       </div>
       <div>
         <h2 style="font-size: 1.35rem; font-weight: 800; color: #0f172a; margin-bottom: 8px; line-height: 1.3;">${productName}</h2>
-        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">${t('rating')}: ★ ${product.rating} (${t('sold')} ${product.sold})</div>
+        <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 12px;">${t('rating')}: ★ ${product.rating || 5.0} (${t('sold')} ${product.sold || 100})</div>
 
         <!-- Psychological Pricing Showcase (Giá hiện tại, Giá gốc gạch ngang, % Giảm giá & Tiết kiệm) -->
         <div class="modal-pricing-box" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; padding: 12px 16px; background: #f0f7ff; border: 1.5px solid #bae6fd; border-radius: 10px;">
           <div style="display: flex; align-items: baseline; gap: 10px;">
             <span id="modal-current-price" style="font-size: 1.5rem; font-weight: 900; color: #0284c7;">${formatCurrency(initialPrice)}</span>
             <span id="modal-orig-price" style="font-size: 0.95rem; color: #94a3b8; text-decoration: line-through; font-weight: 600;">${formatCurrency(initialOrigPrice)}</span>
-            <span id="modal-discount-badge" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px; ${initialDiscount > 0 ? '' : 'display: none;'}">-${initialDiscount}%</span>
+            <span id="modal-discount-badge" style="background: #ef4444; color: white; font-size: 0.75rem; font-weight: 800; padding: 3px 8px; border-radius: 6px;">-${initialDiscount}%</span>
           </div>
           <div id="modal-savings-text" style="font-size: 0.8rem; color: #059669; font-weight: 800; background: #d1fae5; padding: 4px 10px; border-radius: 6px; ${initialSavings > 0 ? '' : 'display: none;'}">
             ${isEn ? 'Save ' + formatCurrency(initialSavings) : 'Tiết kiệm ' + formatCurrency(initialSavings)}
@@ -507,7 +510,9 @@ function openProductModal(productQuery, updateUrl = true) {
 
 function selectVariant(idx, productId) {
   window.currentModalVariant = idx;
-  const prod = STORE_DATA.products.find(p => p.id === productId);
+  const prod = (typeof findProductBySlugOrId === 'function') 
+    ? findProductBySlugOrId(productId) 
+    : STORE_DATA.products.find(p => p.id === productId);
   if (!prod) return;
 
   const btns = document.querySelectorAll('#variant-selector-box .variant-btn');
@@ -523,9 +528,12 @@ function selectVariant(idx, productId) {
 
   const v = prod.variants && prod.variants[idx] ? prod.variants[idx] : null;
   if (v) {
-    const price = v.price;
-    const origPrice = v.originalPrice || v.price * 1.5;
-    const discount = origPrice > price ? Math.round((1 - price / origPrice) * 100) : 0;
+    const price = Number(v.price) || 0;
+    let origPrice = Number(v.originalPrice || v.original_price) || 0;
+    if (!origPrice || origPrice <= price) {
+      origPrice = Math.round(price * 1.5 / 10000) * 10000;
+    }
+    const discount = origPrice > price ? Math.round((1 - price / origPrice) * 100) : 35;
     const savings = origPrice > price ? (origPrice - price) : 0;
 
     const curEl = document.getElementById('modal-current-price');
@@ -537,7 +545,7 @@ function selectVariant(idx, productId) {
     if (origEl) origEl.textContent = formatCurrency(origPrice);
     if (discBadge) {
       discBadge.textContent = `-${discount}%`;
-      discBadge.style.display = discount > 0 ? 'inline-block' : 'none';
+      discBadge.style.display = 'inline-block';
     }
     if (saveEl) {
       saveEl.textContent = (currentLang === 'en' ? 'Save ' + formatCurrency(savings) : 'Tiết kiệm ' + formatCurrency(savings));
