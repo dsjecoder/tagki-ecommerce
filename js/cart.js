@@ -218,13 +218,6 @@ let currentCheckoutTotalUsd = 0;
 // Multi-Gateway Checkout Modal (VietQR, OxaPay Crypto, Binance Pay)
 function openCheckoutModal() {
   syncCartWithLatestProducts();
-  if (!currentUser) {
-    showToast(currentLang === 'en' ? "Please sign in to proceed with checkout!" : "Vui lòng đăng nhập để tiến hành thanh toán!");
-    setTimeout(() => {
-      openAuthModal('login');
-    }, 800);
-    return;
-  }
 
   if (cartState.length === 0) {
     showToast(currentLang === 'en' ? "Your cart is empty!" : "Giỏ hàng của bạn đang trống!");
@@ -621,13 +614,16 @@ async function processSubmitPayment() {
   // Format order items with product name, variant/duration, and quantity
   const orderItemsText = cartState.map(i => `${i.name} (${i.variantLabel}) (x${i.quantity})`).join(', ');
 
+  const settings = (typeof getStoredSettings === 'function') ? getStoredSettings() : (STORE_DATA?.settings || {});
+  const bName = settings.bankName || 'MB Bank';
+
   const orderData = {
     code: currentCheckoutOrderCode,
     email: email,
     items: orderItemsText,
     totalVnd: currentCheckoutTotalVnd,
     totalUsd: Number(currentCheckoutTotalUsd),
-    method: activePaymentTab === 'vietqr' ? 'VietQR MB Bank' : activePaymentTab === 'oxapay' ? 'OxaPay Crypto' : 'Binance Pay',
+    method: activePaymentTab === 'vietqr' ? `VietQR (${bName})` : activePaymentTab === 'oxapay' ? 'OxaPay Crypto' : 'Binance Pay',
     status: 'pending',
     facebook: facebook,
     telegram: telegram,
